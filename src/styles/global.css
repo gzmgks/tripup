@@ -109,3 +109,11 @@ p {
     scroll-behavior: auto !important;
   }
 }
+
+/* Desktop (mouse or trackpad): when an area inside the phone has nothing left to scroll, the page
+   scrolls, so a window shorter than the 956pt frame can still reach the bottom buttons. */
+@media (hover: hover) and (pointer: fine) and (min-width: 501px) {
+  [data-device] * {
+    overscroll-behavior: auto !important;
+  }
+}

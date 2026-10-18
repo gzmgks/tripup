@@ -70,3 +70,33 @@
 .reelCheck {
   color: var(--ink);
 }
+
+/* Before Ren is added: violet, because it's waiting on you */
+.renNote {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--act-surface);
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.renAdd {
+  position: relative;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--act);
+  font: var(--text-button);
+  color: var(--white);
+}
+
+.renAdd::after {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+}

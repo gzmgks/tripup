@@ -124,6 +124,7 @@ export function PollCard({ poll, places }: { poll: Poll; places: Place[] }) {
       </div>
       <h3 className={styles.question}>{poll.question}</h3>
 
+      {poll.status === 'open' && !myVote && <p className={styles.voteHint}>Tap a place to vote</p>}
       <div className={styles.answers} role="group" aria-label={poll.question} ref={answersRef}>
         <AnimatePresence initial={false}>
           {t.options.map((o) => {

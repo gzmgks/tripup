@@ -192,6 +192,19 @@
   color: var(--ink-strong);
 }
 
+.drinksNote {
+  margin-top: -4px;
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink-secondary);
+}
+
+.nudge {
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--act);
+}
+
 .answers {
   display: flex;
   flex-direction: column;

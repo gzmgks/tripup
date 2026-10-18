@@ -13,7 +13,7 @@
   display: grid;
   place-items: center;
   align-content: center;
-  padding: 32px 24px;
+  padding: 16px 24px;
 }
 
 .device {
@@ -46,9 +46,23 @@
   bottom: 9px;
 }
 
+.below {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Desktop-only pointer to the two screens built 1:1 from Figma */
+.hifi {
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink-secondary);
+}
+
 .demoTrigger {
   position: relative;
-  margin-top: 12px;
   min-height: 32px;
   padding: 0 12px;
   border-radius: 16px;
@@ -88,7 +102,7 @@
   }
 
   .homeIndicator,
-  .demoTrigger {
+  .below {
     display: none;
   }
 }

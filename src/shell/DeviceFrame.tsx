@@ -13,6 +13,22 @@ export function DeviceFrame({ children }: { children: ReactNode }) {
   // Hi-fi 2 sits its home indicator 2pt lower than Hi-fi 1.
   const lowIndicator = useApp((s) => s.screen === 'bill')
   const device = useRef<HTMLDivElement>(null)
+  const sheet = useApp((s) => s.sheet)
+  const screen = useApp((s) => s.screen)
+  const hifi = useApp((s) =>
+    s.screen === 'bill' ? 2 : s.screen === 'hub' && s.hubTab === 'plan' && s.poll?.status === 'open' ? 1 : null,
+  )
+
+  // Desktop window shorter than the frame: when a sheet or a screen with its main button at the
+  // bottom opens, scroll the page so that button is on screen; back to the top for the others.
+  useEffect(() => {
+    const el = device.current
+    const page = document.scrollingElement
+    if (!el || !page || page.scrollHeight <= window.innerHeight + 1) return
+    const bottomFirst = sheet !== null || screen === 'bill' || screen === 'squared'
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: bottomFirst ? page.scrollHeight : 0, behavior: reduce ? 'auto' : 'smooth' })
+  }, [sheet, screen])
 
   // Presenter gesture: a long press near the top opens the demo controls. A quick tap still
   // works normally; after a long press, the click the browser sends on release is swallowed
@@ -69,9 +85,16 @@ export function DeviceFrame({ children }: { children: ReactNode }) {
         <div className={`${styles.homeIndicator} ${lowIndicator ? styles.homeIndicatorLow : ''}`} aria-hidden="true" />
       </div>
       {/* Below the phone, so it never mixes with the product UI. On phones: long-press the top of the screen. */}
-      <button type="button" className={styles.demoTrigger} onClick={openDemo}>
-        Demo controls
-      </button>
+      <div className={styles.below}>
+        {hifi && (
+          <p className={styles.hifi}>
+            ★ Hi-fi {hifi}: built 1:1 from the Figma frame ({hifi === 1 ? 'Plan tab, live poll' : 'Log the bill'})
+          </p>
+        )}
+        <button type="button" className={styles.demoTrigger} onClick={openDemo}>
+          Demo controls
+        </button>
+      </div>
     </div>
   )
 }

@@ -24,7 +24,9 @@ async function shoot(step) {
     await Promise.all([...document.images].map((i) => (i.complete ? null : new Promise((r) => (i.onload = i.onerror = r)))))
   })
   await page.waitForTimeout(300)
-  return PNG.sync.read(await page.locator('[data-device]').screenshot())
+  // Crop exactly 440×956 at whole pixels (the centred frame can sit on a half pixel).
+  const box = await page.locator('[data-device]').boundingBox()
+  return PNG.sync.read(await page.screenshot({ clip: { x: Math.round(box.x), y: Math.round(box.y), width: 440, height: 956 } }))
 }
 
 function compare(name, figmaPath, app) {

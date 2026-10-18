@@ -132,8 +132,14 @@ export const openTrip = (s: ScenarioState): ScenarioState => ({ ...s, screen: 'h
 
 export function addGuest(s: ScenarioState, planIds: string[] = [DINNER_PLAN_ID]): ScenarioState {
   const ids = planIds.length ? planIds : [DINNER_PLAN_ID]
+  // Added while the dinner poll is live: he gets a vote too.
+  const poll =
+    s.poll && s.poll.status === 'open' && ids.includes(DINNER_PLAN_ID) && !s.poll.eligible.includes('ren')
+      ? { ...s.poll, eligible: [...s.poll.eligible, 'ren' as const] }
+      : s.poll
   return {
     ...s,
+    poll,
     guestAdded: true,
     guestPlanIds: ids,
     sheet: null,

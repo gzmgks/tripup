@@ -161,3 +161,19 @@ All originals are in the **Originals** frame, next to the Hi-fi Screens section.
   - long place names in the poll end in "…"
 - **Toasts:** a toast clears when a sheet opens.
 - **Browser bar colour:** follows the top of each screen (violet on trip screens, white elsewhere).
+
+## After the final review (stage 6)
+New copy is in quotes.
+- **Add Ren first:** until Ren is added, the open 20:30 slot says "Ren joins you for this dinner: add him first, so he can vote too." Its first button is a violet "+ Add Ren", and Decide becomes a chip. The Decide sheet repeats the prompt with its own "+ Add Ren". If Ren is added while the poll is live, he still gets a vote.
+- **Vote hint:** "Tap a place to vote" (violet, because it's waiting on you) shows on the live poll until Ari has voted. It's never visible in Hi-fi 1, where she already has.
+- **Drinks question:** "Who's in for drinks?" now has the line "For the wine at dinner: it's split among the people who are in", so it isn't read as the 23:30 bar.
+- **Everyone's balance:** opens by itself once the bill is saved, so each person's updated balance is visible (the brief's "each person's total trip balance"). It can still be collapsed.
+- **Log the bill:**
+  - With a tip, Total shows the bill plus the tip.
+  - Turning the last person off the wine says "Someone has to share the wine. Or pick Share all."
+- **Desktop:**
+  - Less padding around the phone.
+  - Scrolling over the phone also scrolls the page.
+  - When a sheet, Log the bill or Squared up opens on a window shorter than the frame, the page scrolls so its button is on screen.
+  - While a hi-fi screen is showing, a caption under the phone says so: "★ Hi-fi 1: built 1:1 from the Figma frame (Plan tab, live poll)". It is desktop only.
+- **Link preview:** an image of the two hi-fi screens with the title, for sharing the URL.

@@ -42,7 +42,7 @@ await tap(page.getByRole('button', { name: /Lisbon with the crew/ }).first())
 check('Home → trip hub', /Final dinner together/.test(await text()))
 
 await tap(page.getByRole('button', { name: 'Add people' }))
-await tap(page.getByRole('button', { name: /Add Ren/ }))
+await tap(page.getByRole('button', { name: /Add Ren & share link/ }))
 check('Ren added as a guest', /\(Guest\)/.test(await text()))
 
 await tap(page.getByRole('button', { name: 'Decide', exact: true }).first())

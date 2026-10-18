@@ -249,6 +249,15 @@ export function DecideSheet() {
     <Sheet title="How should we decide?" onClose={closeSheet} footer={footer}>
       <Segmented label="How should we decide?" options={MODES} value={mode} onChange={setMode} disabled={busy} />
 
+      {!guestAdded && (
+        <div className={styles.renNote}>
+          <p>Ren joins you for this dinner. Add him first, so he gets a vote.</p>
+          <button type="button" className={styles.renAdd} onClick={() => useApp.getState().openSheet('add-people')}>
+            + Add Ren
+          </button>
+        </div>
+      )}
+
       <div className={shared.card}>
         <span className={styles.fieldLabel}>Question</span>
         <p className={styles.question}>{script.question}</p>

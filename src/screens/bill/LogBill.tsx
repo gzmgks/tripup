@@ -53,6 +53,14 @@ export function LogBill() {
   const rest = restOfBill(draft)
   const restEach = Math.floor(rest / attendees.length)
   const wineEach = drinkers.length ? Math.floor(d.wine.amountCents / drinkers.length) : 0
+  // The wine can't end up shared by nobody: keep at least one person on it.
+  const chooseWine = (m: MemberId, choice: WineChoice) => {
+    if (choice === 'out' && drinkers.length === 1 && drinkers[0] === m) {
+      showToast('Someone has to share the wine. Or pick Share all.')
+      return
+    }
+    setWine(m, choice)
+  }
   const plan = data.plans.find((p) => p.id === d.planId)
   const place = data.places.find((p) => p.id === plan?.placeId)
   const tip = bill.tipCents
@@ -97,7 +105,7 @@ export function LogBill() {
             <div className={styles.row}>
               <span className={styles.label}>Total</span>
               <div className={styles.totalRight}>
-                <span className={styles.total}>{formatEUR(bill.totalCents)}</span>
+                <span className={styles.total}>{formatEUR(bill.totalCents + bill.tipCents)}</span>
                 <button type="button" className={styles.photo} aria-label="Add receipt photo" onClick={() => showToast('Receipt photo attached')}>
                   <Icon name="camera" size={24} />
                 </button>
@@ -153,12 +161,12 @@ export function LogBill() {
                                 key={m}
                                 member={m}
                                 choice={bill.wine[m]}
-                                onToggle={() => setWine(m, bill.wine[m] === 'out' ? 'in' : 'out')}
+                                onToggle={() => chooseWine(m, bill.wine[m] === 'out' ? 'in' : 'out')}
                               />
                             ))}
                           </div>
                           {guests.map((m) => (
-                            <GuestTile key={m} choice={bill.wine[m]} onChoose={(c) => setWine(m, c)} />
+                            <GuestTile key={m} choice={bill.wine[m]} onChoose={(c) => chooseWine(m, c)} />
                           ))}
                         </div>
 

@@ -257,3 +257,9 @@
   font-size: 14px;
   line-height: 16px;
 }
+
+/* Until Ari has voted: violet, it's waiting on you */
+.voteHint {
+  font: var(--text-button);
+  color: var(--act);
+}

@@ -6,9 +6,9 @@ TripUp is a group travel app, and this is an interactive prototype of it for the
 
 The prototype walks through the brief's scenario: the last evening of a five-day trip to Lisbon, from an open dinner slot to a squared-up trip.
 
-- **Prototype:** _add the deployed URL_
+- **Prototype:** https://tripup-six.vercel.app
 - **Figma (wireflow, hi-fi screens, design system):** https://www.figma.com/design/BvoXLAMBt9pp0A9KjaEMaD/BendingSpoons_Case_10_26
-- **Design:** Gizem
+- **Design:** Gizem Göksu
 
 Data, restaurant details and AI suggestions are mock. The concept has not been tested with real users.
 

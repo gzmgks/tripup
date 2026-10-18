@@ -28,6 +28,8 @@ export type Entrance = 'poll' | 'other' | null
 /** 02 · The 20:30 slot Maya added when planning: the time is set, the place is open. */
 export function OpenSlot({ plan }: { plan: Plan }) {
   const openSheet = useApp((s) => s.openSheet)
+  // Ren joins for this dinner: until he's added, adding him is the next step (violet = waiting on you).
+  const renPending = useApp((s) => !s.guestAdded)
   return (
     <div className={styles.open}>
       <div className={styles.openHead}>
@@ -40,8 +42,18 @@ export function OpenSlot({ plan }: { plan: Plan }) {
         </p>
       </div>
       {plan.note && <p className={styles.note}>{plan.note}</p>}
+      {renPending && <p className={styles.nudge}>Ren joins you for this dinner: add him first, so he can vote too.</p>}
       <div className={styles.buttons}>
-        <button type="button" className={`${styles.small} ${styles.smallAct}`} onClick={() => openSheet('decide')}>
+        {renPending && (
+          <button type="button" className={`${styles.small} ${styles.smallAct}`} onClick={() => openSheet('add-people')}>
+            + Add Ren
+          </button>
+        )}
+        <button
+          type="button"
+          className={`${styles.small} ${renPending ? styles.smallChip : styles.smallAct}`}
+          onClick={() => openSheet('decide')}
+        >
           Decide
         </button>
         <button type="button" className={`${styles.small} ${styles.smallChip}`} onClick={() => openSheet('explore')}>
@@ -152,6 +164,7 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
       <p id="drinks-title" className={styles.drinksTitle}>
         Who's in for drinks?
       </p>
+      <p className={styles.drinksNote}>For the wine at dinner: it's split among the people who are in.</p>
       {editable && (
         <div className={styles.buttons} role="radiogroup" aria-label="Your answer" onKeyDown={arrowKeys()}>
           <AnswerButton label="I'm in" selected={mine === 'in'} waiting={mine === null} grow={play} onClick={() => answerDrinks('in')} />

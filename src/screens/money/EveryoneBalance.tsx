@@ -26,7 +26,8 @@ function openBalance(view: MoneyView, payments: Payment[], m: MemberId): Cents {
  * calm wording, nobody highlighted.
  */
 export function EveryoneBalance({ view, payments, me, logged }: { view: MoneyView; payments: Payment[]; me: MemberId; logged: boolean }) {
-  const [open, setOpen] = useState(false)
+  // Open once tonight's bill is in, so each person's updated balance is visible; collapsible after.
+  const [open, setOpen] = useState(logged)
   const listId = useId()
 
   return (
