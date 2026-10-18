@@ -1,0 +1,262 @@
+/*
+ * Shared building blocks for the trip sheets (03, 04, 05 suggest, 02 callouts).
+ * Every value is lifted from a pattern in the two hi-fi frames:
+ *   chip      = Button_Grey, the day chips of Hi-fi 1 (150:64)
+ *   act chip  = the "Live Poll" chip of the poll card (151:288), as a button
+ *   card      = "Rest of the bill" (127:3537): BG fill, radius 14, padding 14
+ *   segmented = "How are we splitting this?" (152:1160)
+ *   dropdown  = the "Paid by" pill (152:1058)
+ */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Multi-line captions: Caption is set at 1 for single lines; wrapped hints get air. */
+.note {
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink-secondary);
+}
+
+.body {
+  font: var(--text-body);
+  color: var(--ink-secondary);
+}
+
+.itemTitle {
+  font: var(--text-body);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cardTitle {
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+/* ── Chip (Button_Grey) ──────────────────────────────────────────────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 9px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  font: var(--text-button);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+/* 44pt tap area without changing the drawn size */
+.chip::after {
+  content: '';
+  position: absolute;
+  inset: -7px -8px;
+}
+
+.chipOnMuted {
+  background: var(--surface);
+}
+
+.chipOn {
+  background: var(--chosen);
+  color: var(--ink);
+}
+
+.chip:disabled {
+  cursor: default;
+}
+
+.chipAvatar {
+  margin: -4px 0 -4px -3px;
+}
+
+/* ── Act chip (violet = act) ─────────────────────────────────────────── */
+
+.act {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  background: var(--act-surface);
+  font: var(--text-button);
+  color: var(--act);
+  white-space: nowrap;
+  transition: transform var(--dur-fast) ease;
+}
+
+.act::after {
+  content: '';
+  position: absolute;
+  inset: -7px -2px;
+}
+
+.act:active {
+  transform: scale(0.97);
+}
+
+.act:focus-visible {
+  border-radius: 16px;
+}
+
+/* On a BG card the Purple_Light fill disappears: use white, the same way the
+   Tip pill flips BG-on-white. */
+.actOnMuted {
+  background: var(--surface);
+}
+
+/* ── Card ────────────────────────────────────────────────────────────── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.rowText {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+/* ── Segmented control (152:1160) ────────────────────────────────────── */
+
+.segmented {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+  flex-shrink: 0;
+}
+
+.segment {
+  position: relative;
+  flex: 1 0 0;
+  min-width: 1px;
+  padding: 9px 0;
+  border-radius: 9px;
+  font: var(--text-button);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.segment::after {
+  content: '';
+  position: absolute;
+  inset: -5px -2px;
+}
+
+.segmentOn {
+  background: var(--chosen);
+  color: var(--ink);
+}
+
+.segment:focus-visible {
+  border-radius: 9px;
+}
+
+/* ── Dropdown pill (152:1058) ────────────────────────────────────────── */
+
+.dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 2px solid var(--ink-secondary);
+  border-radius: 999px;
+  background: var(--surface);
+  font: var(--text-button);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.dropdown::after {
+  content: '';
+  position: absolute;
+  inset: -8px -2px;
+}
+
+.dropdown:focus-visible {
+  border-radius: 999px;
+}
+
+.dropdownIcon {
+  color: var(--ink-secondary);
+}
+
+/* ── Leading icon tile (the 40pt camera button, 127:3546) ───────────── */
+
+.iconTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--ink-secondary);
+  transform: scaleX(-1);
+}
+
+/* Sheets without a footer: end the scroll with the same bottom room the footer has
+   (28 + safe area, of which the body already pads 16). */
+.end {
+  flex-shrink: 0;
+  height: calc(12px + env(safe-area-inset-bottom, 0px));
+  margin-top: -16px;
+}

@@ -1,0 +1,139 @@
+/* 10 · Squared up. Flat white, centred; the Lime check is the moment. */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.main {
+  overscroll-behavior: contain;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px var(--gutter);
+  overflow-y: auto;
+  text-align: center;
+}
+
+/* Lime = done; a soft Lime halo keeps it warm without confetti */
+.badgeWrap {
+  position: relative;
+  display: flex;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 4px;
+}
+
+.badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--chosen);
+  color: var(--ink);
+}
+
+/* The 12px halo, drawn as its own circle so it can settle in (and pulse once) behind the check */
+.halo,
+.pulse {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--chosen) 28%, transparent);
+  pointer-events: none;
+}
+
+.pulse {
+  background: color-mix(in srgb, var(--chosen) 45%, transparent);
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 320px;
+}
+
+.title {
+  font: var(--text-h1);
+  color: var(--ink);
+}
+
+.lead {
+  font: var(--text-body);
+  color: var(--ink-secondary);
+  line-height: 1.35;
+}
+
+.people {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatars {
+  display: flex;
+  align-items: center;
+}
+
+.avatarSlot {
+  display: flex;
+  margin-right: -6px;
+}
+
+.avatarSlot:last-child {
+  margin-right: 0;
+}
+
+/* Lime fill, ink text: the "all ✓" pill */
+.all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 16px;
+  background: var(--chosen);
+  font: var(--text-button);
+  color: var(--ink);
+}
+
+/* BG card like "Rest of the bill" */
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.summaryLine {
+  text-wrap: balance;
+  font: var(--text-body);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.summaryNote {
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px var(--gutter) calc(28px + env(safe-area-inset-bottom, 0px));
+}

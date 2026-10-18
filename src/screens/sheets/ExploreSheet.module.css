@@ -1,0 +1,21 @@
+/* 02 callout · Explore with AI (129:4) */
+
+/* The group's request, as a BG bubble (not an input) */
+.prompt {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  font: var(--text-body);
+  color: var(--ink);
+}
+
+/* AI is the one acting here: violet */
+.ai {
+  font-weight: 600;
+  color: var(--act);
+}
+
+.menuWrap {
+  overflow: hidden;
+}

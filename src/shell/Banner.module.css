@@ -1,0 +1,182 @@
+/*
+ * Push banner (wireflow 05 callout 85:218, 06B 85:349) in the hi-fi language:
+ * white card on top of the app, Body/H3 type, violet primary action.
+ * Desktop: just under the 56pt status bar. Phone: just under the safe area.
+ */
+
+.region {
+  position: absolute;
+  top: 56px;
+  left: var(--gutter);
+  right: var(--gutter);
+  z-index: 80;
+  pointer-events: none;
+}
+
+@media (max-width: 500px), (pointer: coarse) and (max-height: 500px) {
+  .region {
+    top: calc(max(env(safe-area-inset-top, 0px), 12px) + 4px);
+  }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+
+.stack:active {
+  cursor: grabbing;
+}
+
+/*
+ * "What the group got": Ari can't get her own push, so the banner is labelled.
+ * A meta label, drawn like the toast (ink, white) so it never reads as product UI,
+ * straddling the card's top edge so nothing behind peeks between label and card.
+ */
+.labelled {
+  gap: 0;
+  margin-top: -13px;
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 -13px 14px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--ink);
+  font: var(--text-button);
+  color: var(--white);
+  white-space: nowrap;
+}
+
+.labelled .card {
+  padding-top: 22px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px 16px;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--device-shadow), inset 0 0 0 1px var(--border);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+}
+
+/* App icon: the logo mark in white on a violet rounded square */
+.appIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--act);
+}
+
+.mark {
+  width: 14px;
+  height: 12.2px; /* logo mark is 206 × 179.4 */
+  background-color: var(--on-act);
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+}
+
+.meta {
+  flex: 1 0 0;
+  min-width: 1px;
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+
+.close {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  color: var(--ink-secondary); /* Grey 1 like the "TripUp · now" beside it: the × is the only cue for this button (Grey 2 is 2.8:1) */
+}
+
+/* 44pt tap area around the 20pt icon */
+.close::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+.body {
+  font: var(--text-body);
+  color: var(--ink-secondary);
+}
+
+/* Quick-vote chips: the hi-fi chip (Purple_Light, violet Button text) */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  position: relative;
+  padding: 6px 8px;
+  border-radius: 16px;
+  background: var(--act-surface);
+  font: var(--text-button);
+  color: var(--act);
+  white-space: nowrap;
+}
+
+/* 44pt tap height without changing the drawn chip */
+.chip::after {
+  content: '';
+  position: absolute;
+  inset: -9px -4px;
+}
+
+.action {
+  margin-top: 4px;
+}
+
+/* 06B: "Log the bill" breathes once after the banner lands (stage 4) */
+.action {
+  border-radius: 14px;
+}
+
+.pulseOnce {
+  animation: pulse-once 0.9s var(--ease-out) 0.85s 1 both;
+}
+
+@keyframes pulse-once {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--act) 38%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--act) 0%, transparent);
+  }
+}

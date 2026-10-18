@@ -1,0 +1,41 @@
+/*
+ * The dashed "?" sits at 465,52 of the 880×375 map export. The layer is a size
+ * container, so the pin follows the image however it is scaled: stretched to
+ * fill on the device (408×174 ≈ the export's ratio) or covered on phones.
+ *   s = rendered px per image px = max(width / 880, height / 375)
+ *   x = 50% + (465.4 − 440) · s
+ *   y = (height − 375 · s) · focusY + 52.2 · s
+ */
+.layer {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  pointer-events: none;
+}
+
+.pin {
+  position: absolute;
+  left: calc(50% + 25.4 * max(100cqw / 880, 100cqh / 375));
+  top: calc((100cqh - 375 * max(100cqw / 880, 100cqh / 375)) * var(--focus-y) + 52.2 * max(100cqw / 880, 100cqh / 375));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+}
+
+/* The drawn pin; a separate box so it can spring in without losing the centring above. */
+.face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--act);
+  border-radius: 50%;
+  background: var(--surface);
+  font: var(--text-button);
+  font-weight: 700;
+  color: var(--ink);
+}

@@ -1,0 +1,37 @@
+.bar {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Heights copied from the hi-fi status bar groups (151:635, 152:1013). */
+.onViolet {
+  height: 56.2846px;
+}
+
+.onLight {
+  height: 51.6224px;
+}
+
+.glyphs {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Phones: the real status bar is there, so keep only the safe-area space. */
+@media (max-width: 500px), (pointer: coarse) and (max-height: 500px) {
+  .onViolet,
+  .onLight {
+    height: env(safe-area-inset-top, 0px);
+    min-height: 12px;
+  }
+
+  .glyphs {
+    display: none;
+  }
+}

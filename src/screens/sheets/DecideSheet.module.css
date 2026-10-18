@@ -1,0 +1,72 @@
+/* 04 · How should we decide? (wireflow 84:236, callout 147:31) */
+
+.fieldLabel {
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+.question {
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+.modeBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.people {
+  padding-top: 4px;
+}
+
+/* Spin result, right above the Spin button: a one-line reel */
+.reel {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+
+/* Landed: the result is chosen, so Lime fills in behind it */
+.reelFill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--chosen);
+}
+
+.reelName {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--text-h3);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* Same box for the dice and the check, so the name doesn't shift when it lands */
+.reelIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.reelDice {
+  display: inline-block;
+  line-height: 1;
+}
+
+.reelCheck {
+  color: var(--ink);
+}

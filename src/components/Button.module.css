@@ -1,0 +1,41 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  border-radius: 14px;
+  font: var(--text-button-2);
+  white-space: nowrap;
+  transition: transform var(--dur-fast) ease, opacity var(--dur-fast) ease;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+
+/* Hi-fi 2 "Save" (127:3556) */
+.primary {
+  padding: 15px 16px;
+  background: var(--act);
+  color: var(--white);
+}
+
+.secondary {
+  padding: 15px 16px;
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.quiet {
+  min-height: 44px;
+  padding: 0 8px;
+  color: var(--act);
+  font: var(--text-button);
+}

@@ -1,0 +1,89 @@
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  background: var(--scrim);
+}
+
+.sheet {
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100% - 64px);
+  border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+  background: var(--surface);
+}
+
+.grabber {
+  width: 36px;
+  height: 5px;
+  margin: 8px auto 0;
+  border-radius: 3px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px var(--gutter) 8px;
+  flex-shrink: 0;
+}
+
+.spacer {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.title {
+  flex: 1 0 0;
+  min-width: 1px;
+  text-align: center;
+  font: var(--text-h2);
+  color: var(--ink);
+}
+
+.close {
+  position: relative;
+  display: flex;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  color: var(--ink);
+}
+
+.close::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px var(--gutter) 16px;
+  scrollbar-width: none;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px var(--gutter) calc(28px + env(safe-area-inset-bottom, 0px));
+}

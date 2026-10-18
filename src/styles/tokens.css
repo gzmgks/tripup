@@ -1,0 +1,89 @@
+/*
+ * TripUp design tokens.
+ * Colours and type come 1:1 from the Figma variables collection "Tripup" and the
+ * file's text styles (Design System card 158:284). Components never use raw hex
+ * values: they use these variables.
+ */
+
+:root {
+  /* ── Colour · Figma variables ─────────────────────────────── */
+  --purple-main: #5a31f4;       /* Purple_Main · brand and actions */
+  --purple-light: #f8f6ff;      /* Purple_Light · soft selected surfaces */
+  --purple-dark: #39209a;       /* Purple_Dark · selected state on violet */
+  --lemon-green: #d4f24a;       /* Lemon Green · chosen, agreed, done */
+  --lemon-green-dark: #95b500;  /* Lemon Green_Dark · lime on white: checks, outlines */
+  --white: #ffffff;             /* White · cards */
+  --black: #1b1a22;             /* Black · text and icons */
+  --grey-1: #626068;            /* Grey 1 · secondary text */
+  --grey-2: #9a9a9a;            /* Grey 2 · hints */
+  --grey-3: #c5c5c5;            /* Grey 3 · dividers */
+  --grey-4: #e2e1e1;            /* Grey 4 · borders */
+  --bg: #f2f2f3;                /* BG · app background */
+
+  /* Raw values the hi-fi frames use outside the variables collection (kept for a 1:1 match). */
+  --ink-time: #737378;          /* timeline times, "Optional", "Pre-selected from…" */
+  --ink-strong: #1c1c1f;        /* a few titles and amounts in the hi-fi */
+  --surface-plan-card: #f4f4f5; /* "From your plan" card on Log the bill */
+  --pure-black: #000000;        /* home indicator, guest pill text */
+
+  /* Added for the prototype, not in Figma: real errors only (failed payment). */
+  --error: #d93636;
+  --error-surface: #fdeeee;
+
+  /* ── Colour · roles (usage rules from the design system) ─── */
+  --act: var(--purple-main);              /* Violet = act: brand, navigation, buttons, waiting on you */
+  --act-selected: var(--purple-dark);
+  --act-surface: var(--purple-light);
+  --chosen: var(--lemon-green);           /* Lime = chosen, agreed, done (fills only, never text) */
+  --chosen-on-white: var(--lemon-green-dark);
+  --ink: var(--black);
+  --ink-secondary: var(--grey-1);
+  --ink-hint: var(--grey-2);
+  --divider: var(--grey-3);
+  --border: var(--grey-4);
+  --surface: var(--white);
+  --surface-muted: var(--bg);
+  --on-act: var(--white);
+
+  /* ── Type families ───────────────────────────────────────── */
+  --font-voice: 'Baloo Tamma 2', 'Plus Jakarta Sans', system-ui, sans-serif; /* accent voice: H1, wordmark */
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Geist', system-ui, -apple-system, sans-serif;                /* body, numbers, money */
+
+  /* Two labels in Hi-fi 2 are set in Inter in Figma ("Pre-selected from…", "Tip"). */
+  --font-inter: 'Inter', system-ui, sans-serif;
+
+  /* ── Text styles (Figma) as font shorthands ──────────────── */
+  /* The hi-fi layers use the font's own line height ("auto"), except Caption (100%)
+     and H1 (30px). Figma's auto for Plus Jakarta Sans is 1.25; Chrome's is taller,
+     so it is pinned. Geist's auto matches Chrome's "normal". */
+  --text-h1: 700 28px / 30px var(--font-voice);        /* H1 · moments: poll question, winner, squared up */
+  --text-h2: 700 20px / 1.25 var(--font-heading);     /* H2 · screen titles */
+  --text-h3: 700 16px / 1.25 var(--font-heading);     /* H3 · card titles */
+  --text-body: 400 14px / normal var(--font-body);     /* Body · everything you read */
+  --text-caption: 400 12px / 1 var(--font-body);       /* Caption · meta and hints */
+  --text-financial: 400 18px / normal var(--font-body);/* Financial · amounts */
+  --text-button: 600 12px / normal var(--font-body);   /* Button · small buttons and chips */
+  --text-button-2: 600 16px / normal var(--font-body); /* Button 2 · primary buttons */
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  --device-w: 440px;       /* reference: iPhone 16/17 Pro Max frame (hi-fi 127:1216, 151:669) */
+  --device-h: 956px;
+  --device-radius: 36px;
+  --device-stroke: 1px;    /* hi-fi frames: 1px inside stroke in Grey 3 */
+  --gutter: 16px;          /* side padding used across the hi-fi screens */
+  --sheet-radius: 24px;    /* white sheet under the violet header (Plan 145:437) */
+  --home-indicator-w: 134px;
+  --home-indicator-h: 5px;
+  --home-indicator: var(--pure-black);
+
+  /* Page behind the device on desktop */
+  --page-bg: var(--grey-4);
+  --device-shadow: 0 24px 64px -24px rgb(27 26 34 / 0.25);
+  --scrim: rgb(27 26 34 / 0.4);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 160ms;
+  --dur-med: 280ms;
+}

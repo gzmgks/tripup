@@ -1,0 +1,11 @@
+/* Rolling count: a clipped window one line tall (clip-path, not overflow, so the
+   baseline stays that of the text and the number sits exactly where plain text would). */
+.roll {
+  position: relative;
+  display: inline-block;
+  clip-path: inset(0 -0.3em);
+}
+
+.digit {
+  display: inline-block;
+}

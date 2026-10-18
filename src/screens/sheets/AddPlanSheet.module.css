@@ -1,0 +1,29 @@
+/* 02 callout · Add plan (97:148) */
+
+.when {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.choice {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  text-align: left;
+  transition: transform var(--dur-fast) ease;
+}
+
+.choice:active {
+  transform: scale(0.99);
+}
+
+.choice:focus-visible {
+  border-radius: 14px;
+}
+
+.exploreIcon {
+  width: 18px;
+  height: 18px;
+}

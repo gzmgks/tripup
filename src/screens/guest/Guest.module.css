@@ -1,0 +1,300 @@
+/*
+ * Ren's phone (G1 85:238, G2 87:241): a plain mobile web page in the hi-fi
+ * language. Flat white page, BG cards, Purple_Light chip, violet primary,
+ * Lime only for "done".
+ */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+/* Browser chrome: back-to-Ari pill (demo), then the address bar */
+.browser {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0 var(--gutter) 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Not part of Ren's page: an OS-level "back to the other phone", drawn like the toast */
+.back {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--white);
+  font: var(--text-button);
+  white-space: nowrap;
+}
+
+.back::after {
+  content: '';
+  position: absolute;
+  inset: -8px -4px;
+}
+
+.address {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+}
+
+.favicon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  background: var(--act);
+}
+
+/* The logo mark in white on violet, as the app icon in the push banner */
+.faviconMark {
+  width: 11px;
+  height: 9.6px; /* logo mark is 206 × 179.4 */
+  background-color: var(--on-act);
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+}
+
+.url {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: var(--text-body);
+  color: var(--ink-secondary);
+}
+
+.page {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  padding: 20px var(--gutter) calc(32px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.page::-webkit-scrollbar {
+  display: none;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 8px;
+  text-align: center;
+  font: var(--text-caption);
+  line-height: 1.4;
+  color: var(--ink-secondary);
+}
+
+.empty {
+  font: var(--text-body);
+  color: var(--ink-secondary);
+}
+
+.caption {
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+/* ── G1 · poll ───────────────────────────────────────────── */
+
+/* Same head as the hi-fi poll card: chip left, "x of 6 voted" right */
+.pollHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.count {
+  font: var(--text-caption);
+  color: var(--act);
+  white-space: nowrap;
+}
+
+.count b {
+  font-weight: 700;
+}
+
+.questionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Hi-fi chip (Purple_Light, violet Button text) with the host's photo */
+.invite {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 16px;
+  background: var(--act-surface);
+  font: var(--text-button);
+  color: var(--act);
+  white-space: nowrap;
+}
+
+.question {
+  font: var(--text-h1);
+  color: var(--ink);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* "You're in!": Lime = chosen, agreed, done (fill only, ink text) */
+.done {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--chosen);
+}
+
+.doneIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--chosen-on-white);
+}
+
+.doneTexts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.doneText {
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+.doneMeta {
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+/* ── G2 · pay ────────────────────────────────────────────── */
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font: var(--text-h2);
+  color: var(--ink);
+}
+
+/* Same surface as "Your share" on Log the bill (152:1183) */
+.share {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--act-surface);
+}
+
+.shareRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.shareLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--text-body);
+  color: var(--ink);
+}
+
+.shareAmount {
+  font: var(--text-h1);
+  color: var(--act);
+  white-space: nowrap;
+  transition: color var(--dur-med) ease;
+}
+
+/* Paid: nothing is waiting on Ren any more, so the amount leaves violet */
+.shareAmountPaid {
+  color: var(--ink);
+}
+
+.paidChip {
+  padding: 6px 8px;
+  border-radius: 16px;
+  background: var(--chosen);
+  font: var(--text-button);
+  color: var(--ink);
+}
+
+/* Calm confirmation on a flat BG card (settling voice) */
+.settled {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.settled .doneIcon {
+  background: var(--chosen);
+  color: var(--ink);
+}
+
+.settledText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settledTitle {
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+.settledBody {
+  font: var(--text-body);
+  color: var(--ink-secondary);
+}

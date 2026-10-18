@@ -1,0 +1,111 @@
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+html,
+body {
+  /* No pull-to-refresh or rubber-banding: a reload would reset the demo. */
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--ink);
+  font: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+img,
+svg {
+  display: block;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* App-like on phones: no text selection or callouts on a long press, except in fields. */
+[data-device] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+[data-device] input,
+[data-device] textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+:focus-visible {
+  outline: 2px solid var(--act);
+  outline-offset: 2px;
+}
+
+/* Where focus lands after a screen change or a removed control (focus.ts): not a control, no ring. */
+[data-landing]:focus-visible {
+  outline: none;
+}
+
+/* A focused control scrolled to a scroll container's edge keeps its ring in view. */
+* {
+  scroll-padding-block: 8px;
+}
+
+/* Text styles as utility classes (same names as in Figma) */
+.t-h1 { font: var(--text-h1); }
+.t-h2 { font: var(--text-h2); }
+.t-h3 { font: var(--text-h3); }
+.t-body { font: var(--text-body); }
+.t-caption { font: var(--text-caption); }
+.t-financial { font: var(--text-financial); font-variant-numeric: tabular-nums; }
+.t-button { font: var(--text-button); }
+.t-button-2 { font: var(--text-button-2); }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

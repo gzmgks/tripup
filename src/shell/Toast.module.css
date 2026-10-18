@@ -1,0 +1,25 @@
+.region {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.raised {
+  bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+}
+
+.toast {
+  max-width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--white);
+  font: var(--text-body);
+  text-align: center;
+  line-height: 1.35;
+}

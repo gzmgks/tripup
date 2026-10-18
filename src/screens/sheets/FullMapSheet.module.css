@@ -1,0 +1,98 @@
+/* 02 callout · Full trip map (128:25) */
+
+/* Same map card as the Plan tab (143:353), taller */
+.map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  flex-shrink: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface-muted);
+}
+
+.mapImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* ★ idea pin: white circle like the expand button, ink star */
+.idea {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+  color: var(--ink);
+  transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) ease;
+}
+
+.idea::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.idea:focus-visible {
+  border-radius: 50%;
+}
+
+/* Tapped: Lime = chosen */
+.ideaOn {
+  background: var(--chosen);
+  transform: scale(1.15);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Legend marks follow the map's own pins. Planned stop: white circle, violet ring */
+.dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--act);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px dashed var(--act);
+  border-radius: 50%;
+  font: var(--text-button);
+  font-size: 10px;
+  color: var(--act);
+}
+
+.star {
+  display: inline-flex;
+  color: var(--ink);
+}

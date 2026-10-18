@@ -1,0 +1,633 @@
+/* Values from Hi-fi 2 (151:669) */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--surface);
+}
+
+.topBlock {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Everything under the title scrolls; the 16px gutters live inside it so focus rings aren't clipped. */
+.scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 0 var(--gutter) 8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scroll, never squash: cards that clip their content would otherwise shrink to fit short screens. */
+.scroll > * {
+  flex-shrink: 0;
+}
+
+.group8 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Header (151:682) */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-shrink: 0;
+  padding: 0 var(--gutter);
+}
+
+.headerSpacer {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.title {
+  flex: 1 0 0;
+  min-width: 1px;
+  text-align: center;
+  font: var(--text-h2);
+  color: var(--ink);
+}
+
+.close {
+  position: relative;
+  display: flex;
+  width: 28px;
+  height: 28px;
+  color: var(--ink);
+}
+
+.close::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+/* Plan card (152:1036) */
+.planCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--surface-plan-card);
+  overflow: hidden;
+}
+
+.planName {
+  font: 700 14px / normal var(--font-body);
+  color: var(--black);
+}
+
+.planMeta {
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+.label {
+  font: var(--text-body);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+
+/* Dropdown (152:1058) */
+.dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0; /* the caption beside it wraps instead (small phones) */
+  padding: 6px 8px;
+  border: 2px solid var(--ink-secondary);
+  border-radius: 999px;
+  background: var(--surface);
+  /* no overflow: hidden, it would clip the 44pt tap area below (the avatar clips itself) */
+}
+
+.dropdown::after {
+  content: '';
+  position: absolute;
+  inset: -6px 0;
+}
+
+/* "Split equally" is 4pt shorter than "Paid by": 28 + 2 × 8 = 44 */
+.rest .dropdown::after {
+  inset: -8px 0;
+}
+
+.dropdownText {
+  font: var(--text-button);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+
+.dropdownTextInk {
+  font: var(--text-button);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.dropdownIcon {
+  color: var(--ink-secondary);
+}
+
+.totalRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.total {
+  font: 700 18px / normal var(--font-body);
+  color: var(--ink-strong);
+  white-space: nowrap;
+}
+
+.photo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.photo::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+}
+
+/* Split preset (152:1160) */
+.preset {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.question {
+  font: var(--text-body);
+  color: var(--ink-strong);
+}
+
+.segmented {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+}
+
+.segment {
+  position: relative;
+  flex: 1 0 0;
+  min-width: 1px;
+  padding: 9px 0;
+  border-radius: 9px;
+  font: var(--text-button);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+
+.segment::after {
+  content: '';
+  position: absolute;
+  inset: -5px -2px;
+}
+
+.segmentOn {
+  background: var(--chosen);
+  color: var(--ink);
+}
+
+.preselected {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+}
+
+/* Wine (152:1171) */
+.wine {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.hint {
+  font: 400 12px / normal var(--font-inter);
+  color: var(--ink-time);
+}
+
+.wineHead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+}
+
+.wineLabel {
+  font: var(--text-body);
+  color: var(--ink);
+}
+
+.wineAmount {
+  font: var(--text-financial);
+  color: var(--ink);
+}
+
+.caption {
+  width: 100%;
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+.tiles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.crewTiles {
+  flex: 1 0 0;
+  min-width: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tile {
+  flex: 1 0 0;
+  min-width: 1px;
+  max-width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.statusOn {
+  display: flex;
+  color: var(--chosen-on-white);
+}
+
+.statusOff {
+  display: flex;
+  color: var(--ink-secondary);
+}
+
+/* The option Ari didn't pick for Ren, once answered */
+.statusHint {
+  display: flex;
+  color: var(--divider);
+}
+
+.violet {
+  display: inline-flex;
+  color: var(--act);
+}
+
+.guestTile {
+  flex: 1 0 0;
+  min-width: 1px;
+  max-width: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.guestPill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--act);
+  border-radius: 48px;
+  background: var(--surface);
+  font: var(--text-caption);
+  color: var(--pure-black);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* After Ari answers for Ren (not in the hi-fi): same pill, ring follows the chips */
+.pill_waiting {
+  border-color: var(--act);
+}
+
+.pill_in {
+  border-color: var(--chosen-on-white);
+}
+
+.pill_off {
+  border-color: var(--ink-secondary);
+}
+
+.guestButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.guestButton {
+  position: relative;
+  flex: 1 0 0;
+  min-width: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px transparent;
+}
+
+.guestButton::after {
+  content: '';
+  position: absolute;
+  inset: -8px -4px;
+}
+
+.guestYes {
+  box-shadow: inset 0 0 0 2px var(--chosen-on-white);
+}
+
+.guestNo {
+  box-shadow: inset 0 0 0 2px var(--ink-secondary);
+}
+
+.summary {
+  width: 100%;
+  text-align: right;
+  font: var(--text-financial);
+  color: var(--ink);
+}
+
+.summary b {
+  font-weight: 700;
+}
+
+.summary .violet {
+  display: inline;
+}
+
+/* + Split out another item (152:1180) */
+.splitOut {
+  width: calc(100% + 2px); /* 408 in Figma */
+  padding: 15px; /* 16 minus the 1px stroke, which Figma draws inside */
+  border: 1px dashed var(--ink-hint);
+  border-radius: 16px;
+  background: var(--surface);
+  font: var(--text-button);
+  color: var(--ink-hint);
+}
+
+/* Rest of the bill (127:3537) */
+.rest {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+
+.restTitle {
+  font: var(--text-financial);
+  color: var(--ink-strong);
+  white-space: nowrap;
+}
+
+.restMeta {
+  min-width: 0;
+  font: var(--text-body);
+  color: var(--ink);
+}
+
+.restMeta b {
+  font-weight: 700;
+}
+
+/* Tip (127:3546) */
+.tipLabel {
+  font: 600 15px / 18px var(--font-inter);
+  color: var(--ink-strong);
+}
+
+.tip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 24px;
+  background: var(--surface-muted);
+}
+
+.tip::after {
+  content: '';
+  position: absolute;
+  inset: -2px 0;
+}
+
+/* Last thing in the scrolling block: draw the focus ring inside so the edge never cuts it. */
+.tip:focus-visible {
+  outline-offset: -2px;
+}
+
+.tipText {
+  font: var(--text-button);
+  color: var(--ink-strong);
+  white-space: pre;
+}
+
+.tipIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.pad2 {
+  display: flex;
+  width: 16px;
+  height: 16px;
+  padding: 2px;
+}
+
+/* Bottom (152:1183) */
+.bottom {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px var(--gutter) calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.share {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--act-surface);
+  overflow: hidden;
+}
+
+.shareLabel {
+  font: var(--text-body);
+  color: var(--ink);
+}
+
+.shareAmount {
+  font: var(--text-h1);
+  color: var(--act);
+  white-space: nowrap;
+}
+
+.save {
+  padding: 15px 16px;
+  border-radius: 14px;
+  background: var(--act);
+  font: var(--text-button-2);
+  color: var(--white);
+}
+
+/* ── Motion (stage 4): calm settle-side feedback, static at rest ── */
+
+/* Wraps the wine block so it can open and close with the preset */
+.wineWrap {
+  width: 100%;
+}
+
+/* Anchors for values that cross-fade (popLayout measures against the nearest positioned box) */
+.tile,
+.pad2 {
+  position: relative;
+}
+
+/* At phone widths a tile is ~39pt wide: reach 44pt into the 8pt gaps, without overlapping. */
+.tile::after {
+  content: '';
+  position: absolute;
+  inset: 0 -3px;
+}
+
+.tipGlyph {
+  display: flex;
+}
+
+.segment {
+  transition:
+    background-color var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out);
+}
+
+.guestPill {
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.guestButton {
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.guestButton > span {
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+/* Small phones (iPhone SE, 320–360 wide): let the presets wrap and the wine tiles shrink. */
+@media (max-width: 360px) {
+  .segment {
+    white-space: normal;
+    line-height: 1.15;
+    padding: 6px 2px;
+  }
+
+  .tile {
+    padding: 8px 1px;
+  }
+
+  .tile > :first-child {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .guestTile {
+    max-width: 96px;
+  }
+}

@@ -1,0 +1,175 @@
+/* Presenter-only tools. Deliberately plain: not product UI. */
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: var(--scrim);
+  display: flex;
+  align-items: flex-end;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 86%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+  padding: 16px var(--gutter) calc(32px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  outline: none; /* focused on open so Tab starts inside; the controls show their own ring */
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hint {
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+  line-height: 1.4;
+}
+
+.close {
+  min-width: 44px;
+  min-height: 44px;
+  font: var(--text-button);
+  color: var(--ink-secondary);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px dashed var(--divider);
+}
+
+.blockTitle {
+  font: var(--text-button);
+  color: var(--ink-secondary);
+}
+
+.nothing {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+  font: var(--text-body);
+  color: var(--ink-secondary);
+}
+
+.primary {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--white);
+  font: var(--text-button-2);
+  font-size: 14px;
+  text-align: left;
+}
+
+.secondary {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+  font: var(--text-button);
+  color: var(--ink);
+}
+
+.secondary:disabled {
+  color: var(--ink-hint);
+  cursor: default;
+}
+
+.pair {
+  display: flex;
+  gap: 8px;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+  font: var(--text-body);
+  color: var(--ink);
+}
+
+.switch {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--divider);
+  transition: background-color var(--dur-fast) ease;
+}
+
+.switchOn {
+  background: var(--ink);
+}
+
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--white);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.switchOn .knob {
+  transform: translateX(16px);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+  text-align: left;
+  font: var(--text-body);
+  color: var(--ink);
+}
+
+.step[aria-current='step'] {
+  background: var(--border);
+  color: var(--ink);
+  font-weight: 600;
+}

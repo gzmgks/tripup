@@ -1,0 +1,19 @@
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--act);
+}
+
+.placeholder {
+  flex: 1 0 0;
+  width: 100%;
+  padding: 24px var(--gutter);
+  border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+  background: var(--surface);
+  font: var(--text-body);
+  color: var(--ink-secondary);
+}

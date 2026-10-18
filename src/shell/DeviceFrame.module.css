@@ -1,0 +1,94 @@
+/*
+ * Desktop: the app sits at exactly 440×956 (1:1, never scaled) in a minimal
+ * frame that copies the hi-fi frames: 36px radius, 1px Grey 3 inside stroke.
+ * If the window is shorter than the frame, the page scrolls.
+ *
+ * Phone (narrow viewports): the app fills the viewport and respects the safe
+ * areas; the real OS status bar replaces the static one.
+ */
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  padding: 32px 24px;
+}
+
+.device {
+  position: relative;
+  width: var(--device-w);
+  height: var(--device-h);
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--device-radius);
+  border: var(--device-stroke) solid var(--divider);
+  background: var(--surface);
+  box-shadow: var(--device-shadow);
+  isolation: isolate;
+}
+
+.homeIndicator {
+  position: absolute;
+  left: 50%;
+  bottom: 11px;
+  width: var(--home-indicator-w);
+  height: var(--home-indicator-h);
+  margin-left: calc(var(--home-indicator-w) / -2);
+  border-radius: 3px;
+  background: var(--home-indicator);
+  pointer-events: none;
+  z-index: 110; /* above sheets, as in the hi-fi */
+}
+
+.homeIndicatorLow {
+  bottom: 9px;
+}
+
+.demoTrigger {
+  position: relative;
+  margin-top: 12px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  font: var(--text-button);
+  color: var(--ink); /* at 0.7 it reads as Grey 1 and keeps 4.5:1 while faint */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  opacity: 0.7;
+  transition: opacity var(--dur-fast) ease;
+}
+
+/* 44pt tap height without changing the drawn pill (30 inside the border + 2 × 7) */
+.demoTrigger::after {
+  content: '';
+  position: absolute;
+  inset: -7px 0;
+}
+
+.demoTrigger:hover,
+.demoTrigger:focus-visible {
+  opacity: 1;
+}
+
+@media (max-width: 500px), (pointer: coarse) and (max-height: 500px) {
+  .page {
+    display: block;
+    padding: 0;
+  }
+
+  .device {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .homeIndicator,
+  .demoTrigger {
+    display: none;
+  }
+}

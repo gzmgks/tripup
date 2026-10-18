@@ -1,0 +1,287 @@
+/*
+ * 01 · Home. White page with BG cards, as the hi-fi Plan sheet. The active trip
+ * card echoes the violet trip header it opens into (violet = brand and act):
+ * same title/subtitle colours, same 3px violet avatar rings.
+ */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 var(--gutter) calc(32px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+.title {
+  font: var(--text-h2);
+  color: var(--ink);
+}
+
+.profile {
+  position: relative;
+  display: flex;
+  border-radius: 48px;
+}
+
+.profile::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.caption {
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink-secondary);
+}
+
+/* Active trip */
+.trip {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--act);
+  text-align: left;
+  transition: transform var(--dur-fast) ease;
+}
+
+.trip:active {
+  transform: scale(0.99);
+}
+
+.cover {
+  position: relative;
+  display: block;
+  height: 128px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-muted);
+}
+
+.coverImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%; /* = COVER_FOCUS_Y in Home.tsx */
+  pointer-events: none;
+}
+
+.tripBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 8px 8px;
+}
+
+.tripTitles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tripName {
+  font: var(--text-h3);
+  color: var(--surface-muted);
+}
+
+.tripMeta {
+  font: var(--text-caption);
+  color: var(--grey-4); /* Grey 3 on violet is 3.8:1; Grey 4 keeps the soft look at 5.1:1 */
+}
+
+.next {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.nextLabel {
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+.nextText {
+  font: var(--text-body);
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+.tripFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0 3px 3px; /* room for the 3px rings */
+}
+
+.crew {
+  display: flex;
+  align-items: center;
+}
+
+.crewAvatar {
+  margin-right: -6px;
+}
+
+.crewAvatar:last-child {
+  margin-right: 0;
+}
+
+.balance {
+  font: var(--text-body);
+  color: var(--surface-muted);
+  white-space: nowrap;
+}
+
+/* Plan a new trip */
+.newTrip {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  flex-shrink: 0;
+}
+
+.newHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.newIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.newIcon img {
+  width: 18px;
+  height: 18px;
+}
+
+.newTitles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 1px;
+}
+
+.newTitle {
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+.newActions {
+  display: flex;
+  gap: 8px;
+}
+
+.newButton {
+  flex: 1 0 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 14px;
+  font: var(--text-button);
+  white-space: nowrap;
+  transition: transform var(--dur-fast) ease;
+}
+
+.newButton:active {
+  transform: scale(0.98);
+}
+
+.newButtonAct {
+  background: var(--act);
+  color: var(--on-act);
+}
+
+.newButtonQuiet {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* Past trips */
+.past {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  text-align: left;
+}
+
+/* Squared up = done: Lime dark check on white */
+.pastBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--chosen-on-white);
+}
+
+.pastText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.pastName {
+  font: var(--text-body);
+  font-weight: 700;
+  color: var(--ink-strong);
+}

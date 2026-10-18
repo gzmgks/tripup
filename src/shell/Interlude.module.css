@@ -1,0 +1,64 @@
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--act-selected);
+  color: var(--white);
+  /* Opaque: taps must not reach the hidden screen while the evening moves on. */
+  pointer-events: auto;
+}
+
+.caption {
+  font: var(--text-h3);
+  opacity: 0.8;
+}
+
+.time {
+  font: var(--text-h1);
+  font-size: 56px;
+  line-height: 60px;
+}
+
+/* Rolling hour (stage 4): every part sits on the same 60px line, top-aligned */
+.clock {
+  display: inline-flex;
+  align-items: flex-start;
+}
+
+.part {
+  display: block;
+  height: 60px;
+}
+
+/* A one-digit window; clipped top and bottom only, so a wider digit never loses its sides */
+.window {
+  position: relative;
+  display: block;
+  height: 60px;
+  clip-path: inset(0 -0.3em);
+}
+
+.sizer {
+  display: block;
+  visibility: hidden;
+}
+
+.column {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.column > span {
+  display: block;
+  height: 60px;
+}

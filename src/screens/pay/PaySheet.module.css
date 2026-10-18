@@ -1,0 +1,161 @@
+/* 09 · Pay sheet. The calm settle voice: white sheet, BG option cards, one violet action. */
+
+.amountBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+/* Big moment amount, as "Your share €34.60" (Hi-fi 2) */
+.amount,
+.amountDone {
+  font: var(--text-h1);
+  color: var(--act);
+  font-variant-numeric: tabular-nums;
+}
+
+.amountDone {
+  color: var(--ink);
+}
+
+.for {
+  font: var(--text-body);
+  color: var(--ink-secondary);
+}
+
+/* Same height for every phase, so the sheet doesn't jump as the payment moves on */
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 236px;
+}
+
+.methods {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 8px 16px;
+  text-align: center;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+}
+
+/* Waiting on you (approve in the bank app, sending): violet */
+.act {
+  background: var(--act-surface);
+  color: var(--act);
+}
+
+/* Done: Lime fill, ink check (never lime text) */
+.done {
+  background: var(--chosen);
+  color: var(--ink);
+}
+
+/* Waiting on someone else: neutral */
+.waiting {
+  background: var(--surface-muted);
+  color: var(--ink-secondary);
+}
+
+/* The only red on the settle side: a payment that really failed */
+.error {
+  background: var(--error-surface);
+  color: var(--error);
+}
+
+.statusTitle {
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+.statusBody {
+  max-width: 300px;
+  font: var(--text-body);
+  color: var(--ink-secondary);
+  line-height: 1.35;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--act);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Height of a primary <Button> (15 + 19 + 15) */
+.footerSpacer {
+  display: block;
+  height: 51px;
+}
+
+/* ── Motion (stage 4) ──────────────────────────────────────── */
+
+/* Phases share one grid cell, so the old one fades out under the new one without moving anything */
+.stageWrap {
+  display: grid;
+}
+
+.stageWrap > .stage {
+  grid-area: 1 / 1;
+}
+
+.amount,
+.amountDone {
+  transition: color var(--dur-med) var(--ease-out);
+}
+
+.badge {
+  position: relative;
+}
+
+/* Waiting on the bank: a soft violet ring that breathes out of the badge */
+.pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--act);
+  pointer-events: none;
+}
+
+.footerSet {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* A spinner is essential motion: with reduced motion it keeps turning, slowly, so it never reads as stuck. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.8s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

@@ -1,0 +1,259 @@
+/* Values from Timeline item · Poll (151:288 / instance 151:242) */
+
+.card {
+  flex: 1 0 0;
+  min-width: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.chip {
+  padding: 6px 8px;
+  border-radius: 16px;
+  background: var(--act-surface);
+  font: var(--text-button);
+  color: var(--act);
+  white-space: nowrap;
+}
+
+.count {
+  font: var(--text-caption);
+  color: var(--act);
+  white-space: nowrap;
+}
+
+.count b {
+  font-weight: 700;
+}
+
+.question {
+  width: 100%;
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 16px;
+  background: var(--act-surface);
+}
+
+.option {
+  position: relative;
+  isolation: isolate; /* the lime highlight sits behind the row's content */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  font: var(--text-body);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* Long names end in "…" on small phones instead of running into the count */
+.name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track {
+  position: relative;
+  display: block;
+  width: calc(100% - 3px); /* 269 of 272 in Figma */
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--ink-hint);
+  /* The width springs (framer-motion); the leader colour cross-fades. */
+  transition: background-color var(--dur-med) ease;
+}
+
+/* Leader: violet bar (no "Leading" badge in the hi-fi) */
+.leader {
+  background: var(--act);
+}
+
+.voters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 24px; /* reserved for the voters, so a first vote doesn't shift the list (and rows stay ≥44pt) */
+}
+
+.stack {
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* Same geometry as "-8px between avatars", but robust to an avatar that is
+     leaving (it is lifted out of the row while it fades). */
+  margin-right: 8px;
+}
+
+.voter {
+  display: flex;
+  flex-shrink: 0;
+  margin-right: -8px;
+}
+
+.yourVote {
+  font: 700 12px / 1 var(--font-body);
+  color: var(--act);
+  white-space: nowrap;
+}
+
+/* A block that grows in or folds away (motion.ts grow); it carries no padding itself. */
+.reveal {
+  width: 100%;
+}
+
+.suggest {
+  position: relative;
+  width: 100%;
+  padding: 9px; /* 10 minus the 1px stroke, which Figma draws inside */
+  border: 1px dashed var(--ink-hint);
+  border-radius: 16px;
+  background: var(--surface-muted);
+  font: var(--text-button);
+  color: var(--ink-hint);
+}
+
+/* 44pt tap area without changing the drawn size */
+.suggest::after {
+  content: '';
+  position: absolute;
+  inset: -5px 0;
+}
+
+.footer {
+  width: 100%;
+  padding-right: 1px; /* Figma measures this line ~0.3px wider and wraps "19:30"; match it */
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+/* Poll callouts (05: "Theo adds a 4th place", "Tie state"): a BG card like "Rest of the bill" */
+.notice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.noticeTitle {
+  font: var(--text-h3);
+  color: var(--ink);
+}
+
+.noticeText {
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink-secondary);
+}
+
+.noticeActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.pill {
+  position: relative;
+  padding: 9px 12px;
+  border-radius: 16px;
+  font: var(--text-button);
+  white-space: nowrap;
+}
+
+/* 44pt tap area without changing the drawn size */
+.pill::after {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+}
+
+.pillAct {
+  background: var(--act);
+  color: var(--on-act);
+}
+
+.pillQuiet {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.spin {
+  margin-top: 4px;
+}
+
+.dice {
+  display: inline-block;
+}
+
+/* 05B · The winning row, just before the poll closes: Lime = chosen (a fill, ink text on it). */
+.won {
+  position: absolute;
+  inset: -4px -8px;
+  z-index: -1;
+  border-radius: 10px;
+  background: var(--chosen);
+}
+
+/* The little celebration rises from the winner's count. */
+.burst {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  font-size: 14px;
+  line-height: 16px;
+}

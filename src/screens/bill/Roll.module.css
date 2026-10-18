@@ -1,0 +1,17 @@
+/* Rolling value (Roll.tsx). Positioned so the leaving text pops out relative to it. */
+
+.roll {
+  position: relative;
+  display: inline-block;
+}
+
+.block {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.item {
+  display: inline-block;
+}
