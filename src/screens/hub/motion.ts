@@ -27,7 +27,9 @@ export function grow(gap: number, reduce: Reduce, delay = 0) {
     return {
       initial: false as const,
       animate: { height: 'auto', opacity: 1, marginTop: 0 },
-      exit: { height: 0, opacity: 0, marginTop: -gap, transition: { duration: 0 } },
+      // Leaves at full height: a collapsed box can paint for a frame before its opacity lands,
+      // spilling its content over what's below. It's removed right after anyway.
+      exit: { opacity: 0, transition: { duration: 0 } },
       transition: { duration: 0 },
     }
   }

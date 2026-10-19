@@ -104,7 +104,7 @@
   transition: background-color var(--dur-med) ease;
 }
 
-/* Leader: violet bar (no "Leading" badge in the hi-fi) */
+/* A single leader: violet bar (no "Leading" badge in the hi-fi). Tied options stay grey alike. */
 .leader {
   background: var(--act);
 }
@@ -159,6 +159,18 @@
   content: '';
   position: absolute;
   inset: -5px 0;
+}
+
+/* "Nic switched to Ramiro": news from the group, in the footer's quiet voice */
+.switched {
+  width: 100%;
+  font: var(--text-caption);
+  color: var(--ink-secondary);
+}
+
+.switched b {
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .footer {

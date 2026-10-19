@@ -106,7 +106,7 @@ export function LogBill() {
               <span className={styles.label}>Total</span>
               <div className={styles.totalRight}>
                 <span className={styles.total}>{formatEUR(bill.totalCents + bill.tipCents)}</span>
-                <button type="button" className={styles.photo} aria-label="Add receipt photo" onClick={() => showToast('Receipt photo attached')}>
+                <button type="button" className={styles.photo} aria-label="Add receipt photo" onClick={() => showToast('✓ Receipt photo attached')}>
                   <Icon name="camera" size={24} />
                 </button>
               </div>
@@ -144,14 +144,14 @@ export function LogBill() {
                     transition={reduce ? { duration: 0 } : { duration: 0.28, ease: EASE }}
                   >
                     <div className={styles.wine}>
-                      <p className={styles.hint}>Pre-selected from tonight’s drinks answers</p>
+                      <p className={styles.hint}>Pre-selected from tonight’s wine answers</p>
                       <div className={styles.group8}>
                         <div className={styles.wineHead}>
                           <div className={styles.row}>
                             <span className={styles.wineLabel}>{d.wine.label}</span>
                             <span className={styles.wineAmount}>{formatEUR(d.wine.amountCents)}</span>
                           </div>
-                          <p className={styles.caption}>Split out from the total · pre-filled from “Who's in for drinks?”</p>
+                          <p className={styles.caption}>Split out from the total · pre-filled from “Who's having wine?”</p>
                         </div>
 
                         <div className={styles.tiles}>
@@ -301,14 +301,18 @@ function CrewTile({ member, choice, onToggle }: { member: MemberId; choice: Wine
   )
 }
 
-/** Ren never answered "Who's in for drinks?": violet = waiting on you. */
+/** Ren never answered "Who's having wine?": counted in until Ari says otherwise (violet = waiting on you). */
 function GuestTile({ choice, onChoose }: { choice: WineChoice; onChoose: (c: WineChoice) => void }) {
   const state = choice === 'pending' ? 'waiting' : choice === 'in' ? 'in' : 'off'
   return (
     <div className={styles.guestTile}>
       <span className={`${styles.guestPill} ${styles[`pill_${state}`]}`}>
-        <b>Ren</b>
-        <Roll text={state} align="center" />
+        {/* A guest from the link has no photo: his monogram, as everywhere else. */}
+        <Avatar member="ren" size={24} labelled={false} />
+        <span className={styles.guestName}>
+          <b>Ren</b>
+          <Roll text={state} align="center" />
+        </span>
       </span>
       <div className={styles.guestButtons}>
         <button

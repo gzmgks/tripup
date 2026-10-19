@@ -5,7 +5,7 @@ import { Button } from '../../components/Button'
 import { memberName } from '../../components/names'
 import { Announce } from '../../components/Announce'
 import { canAddOption, tally } from '../../domain/poll'
-import type { Place, Poll } from '../../domain/types'
+import type { MemberId, Place, Poll } from '../../domain/types'
 import { useApp } from '../../store/app'
 import { useShallow } from 'zustand/react/shallow'
 import { BAR_SPRING, EASE_OUT, POP_SPRING, TRAVEL_SPRING, grow, placeNameId } from './motion'
@@ -58,9 +58,28 @@ export function PollCard({ poll, places }: { poll: Poll; places: Place[] }) {
 
   const everyoneIn = t.eligible > 0 && t.waitingFor.length === 0
   const tie = pollNotice === 'tie'
+  // Only a single leader gets the violet bar; options tied on votes look identical (grey), even for first.
+  const soleLeader = t.leaders.length === 1 ? t.leaders[0] : null
   // Everyone is in and there's one winner: the poll is about to close (05B).
-  const closing = everyoneIn && !tie && t.leaders.length === 1
+  const closing = everyoneIn && !tie && soleLeader !== null
   const canSuggest = canAddOption(poll) && !everyoneIn
+
+  // "Nic switched to Ramiro": someone else moving their vote, noticed as it happens
+  // (derived during render, like Roll). Ari's own changes need no telling, and a demo
+  // jump (it rebuilds the trip data) is not anyone changing their mind.
+  const [seen, setSeen] = useState({ votes: poll.votes, data })
+  const [switched, setSwitched] = useState<{ member: MemberId; optionId: string } | null>(null)
+  if (seen.votes !== poll.votes || seen.data !== data) {
+    const before = seen.votes
+    const jumped = seen.data !== data
+    const moved = jumped ? undefined : (Object.keys(poll.votes) as MemberId[]).find((m) => m !== me && before[m] && before[m] !== poll.votes[m])
+    setSeen({ votes: poll.votes, data })
+    if (moved) setSwitched({ member: moved, optionId: poll.votes[moved]! })
+    else if (jumped && before !== poll.votes) setSwitched(null)
+  }
+  // It stays while that vote stands; the tie callout tells its own story.
+  const switchLine = switched && poll.votes[switched.member] === switched.optionId && !tie ? switched : null
+  const switchPlace = switchLine ? (places.find((p) => p.id === switchLine.optionId)?.shortName ?? placeName(switchLine.optionId)) : ''
 
   // "Theo added Time Out Market": the newest option, and who added it (scripted).
   const added = poll.optionIds[poll.optionIds.length - 1]
@@ -104,6 +123,7 @@ export function PollCard({ poll, places }: { poll: Poll; places: Place[] }) {
       : tie
         ? `It's a tie! Let fate decide. ${t.leaders.map((id) => `${placeName(id)} ${t.counts[id]}`).join(', ')}`
         : ''
+  const switchSaid = switchLine ? `${memberName(switchLine.member)} switched to ${switchPlace}` : ''
 
   return (
     <div className={styles.card} id={POLL_CARD_ID}>
@@ -121,6 +141,7 @@ export function PollCard({ poll, places }: { poll: Poll; places: Place[] }) {
         </motion.span>
         <Announce text={countSaid} settle={1500} />
         <Announce text={noticeSaid} />
+        <Announce text={switchSaid} />
       </div>
       <h3 className={styles.question}>{poll.question}</h3>
 
@@ -168,7 +189,7 @@ export function PollCard({ poll, places }: { poll: Poll; places: Place[] }) {
                 </span>
                 <span className={styles.track}>
                   <motion.span
-                    className={`${styles.fill} ${o.isLeader ? styles.leader : ''}`}
+                    className={`${styles.fill} ${o.optionId === soleLeader ? styles.leader : ''}`}
                     initial={false}
                     animate={{ width: `${o.fraction * 100}%` }}
                     transition={reduce ? { duration: 0 } : BAR_SPRING}
@@ -220,6 +241,17 @@ export function PollCard({ poll, places }: { poll: Poll; places: Place[] }) {
           })}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence initial={false}>
+        {switchLine && (
+          // Keyed by the move, so a second switch replaces the line rather than editing it.
+          <motion.div key={`switch-${switchLine.member}-${switchLine.optionId}`} className={styles.reveal} {...grow(8, reduce)}>
+            <p className={styles.switched}>
+              <b>{memberName(switchLine.member)}</b> switched to {switchPlace}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence initial={false}>
         {pollNotice === 'fourth-added' && (

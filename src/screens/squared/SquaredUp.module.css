@@ -125,6 +125,11 @@
   color: var(--ink);
 }
 
+/* Each phrase wraps as a whole, its " ·" with it */
+.phrase {
+  display: inline-block;
+}
+
 .summaryNote {
   font: var(--text-caption);
   color: var(--ink-secondary);

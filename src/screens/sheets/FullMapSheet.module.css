@@ -1,38 +1,73 @@
-/* 02 callout · Full trip map (128:25) */
+/* 02 callout · Full trip map (128:25), full screen: the map edge to edge, the stop card over it */
 
-/* Same map card as the Plan tab (143:353), taller */
-.map {
+.stage {
   position: relative;
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  flex-shrink: 0;
-  border-radius: 16px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: hidden;
   background: var(--surface-muted);
 }
 
+/* The whole export, in its own coordinates (MapLayer): pins land on the route as drawn */
 .mapImage {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  pointer-events: none;
+}
+
+.spotOn {
+  z-index: 1;
+}
+
+/* A stop: the pin drawn in the export, redrawn on top so it can be tapped and selected.
+   It covers the drawn one (52 image px) at any scale (--s: the map's scale, set by MapLayer). */
+.pin {
+  position: relative;
+  display: block;
+  width: max(28px, 56 * var(--s));
+  height: max(28px, 56 * var(--s));
+  border-radius: 50%;
+  pointer-events: auto;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) ease;
+}
+
+/* 44pt tap area */
+.pin::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.pin:focus-visible {
+  border-radius: 50%;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+/* Selected: lifted, with a soft violet halo (its card is open below) */
+.pinOn {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--act) 22%, transparent);
 }
 
 /* ★ idea pin: white circle like the expand button, ink star */
 .idea {
-  position: absolute;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  margin: -14px 0 0 -14px;
   border-radius: 50%;
   background: var(--surface);
   box-shadow: inset 0 0 0 1.5px var(--ink);
   color: var(--ink);
+  pointer-events: auto;
   transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) ease;
 }
 
@@ -52,47 +87,88 @@
   transform: scale(1.15);
 }
 
-.legend {
+/* Map tools, over the map's top edge (the row itself lets taps through to the map) */
+/* Landscape: the whole export at the stage's width, scrolled (see MapPan) */
+.pan {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.pan::-webkit-scrollbar {
+  display: none;
+}
+
+.panInner {
+  position: relative;
+  width: 100%;
+}
+
+.tools {
+  position: absolute;
+  top: 12px;
+  left: var(--gutter);
+  right: var(--gutter);
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font: var(--text-caption);
-  color: var(--ink-secondary);
+  gap: 8px;
+  pointer-events: none;
 }
 
-.legend li {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.tools > * {
+  pointer-events: auto;
 }
 
-/* Legend marks follow the map's own pins. Planned stop: white circle, violet ring */
-.dot {
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--act);
-  border-radius: 50%;
+/* The selected pin's card, floating over the bottom of the map like the push banner */
+.cardSlot {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 16px;
   background: var(--surface);
+  box-shadow: var(--device-shadow), inset 0 0 0 1px var(--border);
 }
 
-.open {
-  display: inline-flex;
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cardPin {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.cardStar {
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-  border: 1.5px dashed var(--act);
   border-radius: 50%;
-  font: var(--text-button);
-  font-size: 10px;
-  color: var(--act);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+  color: var(--ink);
 }
 
-.star {
-  display: inline-flex;
-  color: var(--ink);
+.cardText {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.check {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--chosen-on-white);
 }

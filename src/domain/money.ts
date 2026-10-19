@@ -365,7 +365,7 @@ export function buildDinnerExpense(draft: BillDraft): Expense {
   return expense
 }
 
-/** Drink chips pre-selected from "Who's in for drinks?": everyone but a 'skip' (no answer counts as in). */
+/** Wine chips pre-selected from "Who's having wine?": everyone but a 'skip' (no answer counts as in). */
 export function drinkersFromAnswers(
   attendees: readonly MemberId[],
   answers: Partial<Record<MemberId, DrinksAnswer>>,

@@ -4,6 +4,7 @@
 // stage 4 schedules them on timers.
 
 import { DINNER_PLAN_ID } from '../data/seed'
+import { castVote, tally } from '../domain/poll'
 import type { MemberId } from '../domain/types'
 import * as sc from './scenario'
 import type { ScenarioState } from './scenario'
@@ -17,19 +18,50 @@ export interface ScriptEvent {
 }
 
 const pollOpen = (s: ScenarioState) => s.poll?.status === 'open'
-const voteBy = (member: MemberId, optionId: string, after?: (s: ScenarioState) => boolean): ScriptEvent => ({
+
+/** The group's pick: Ramiro, or the poll's first place if Ari left Ramiro out of it. */
+export function favourite(s: ScenarioState): string {
+  const options = s.poll?.optionIds ?? []
+  return options.includes('ramiro') ? 'ramiro' : options[0]
+}
+
+/** Theo's and Nic's first choice: Taberna, or another place if Taberna isn't in the poll. */
+function rival(s: ScenarioState): string {
+  const fav = favourite(s)
+  const options = s.poll?.optionIds ?? []
+  return options.find((o) => o === 'taberna' && o !== fav) ?? options.find((o) => o !== fav) ?? fav
+}
+
+/** Scripted votes only ever go to places that are in the poll, so none is dropped. */
+const voteBy = (member: MemberId, choose: (s: ScenarioState) => string, after?: (s: ScenarioState) => boolean): ScriptEvent => ({
   id: `vote-${member}`,
   label: `${member[0].toUpperCase()}${member.slice(1)} votes`,
   ready: (s) => pollOpen(s) && !sc.hasVoted(s, member) && (after ? after(s) : true),
-  run: (s) => sc.vote(s, member, optionId),
+  run: (s) => sc.vote(s, member, choose(s)),
 })
 
 const othersIn = (s: ScenarioState) => ['maya', 'theo', 'nic'].every((m) => sc.hasVoted(s, m as MemberId))
 const ariIn = (s: ScenarioState) => sc.hasVoted(s, s.data.trip.me)
+/** Nic has moved to the group's pick (or that step is skipped, as in the tie edge case). */
+const nicSwitched = (s: ScenarioState) => s.done.includes('switch-nic') || s.poll?.votes.nic === favourite(s)
+const renVotes = (s: ScenarioState) =>
+  (s.data.members.find((m) => m.id === 'ren')?.planIds ?? []).includes(DINNER_PLAN_ID) && !!s.poll?.eligible.includes('ren')
+
+/**
+ * Would the poll still end level once Sam (and Ren) vote for the group's pick? Only when Ren
+ * votes from his link for the same place as Ari (3–3): then Theo comes round too.
+ */
+export function endsTied(s: ScenarioState): boolean {
+  if (!s.poll) return false
+  let poll = s.poll
+  for (const m of ['sam', 'ren'] as MemberId[]) if (!poll.votes[m]) poll = castVote(poll, m, favourite(s))
+  return tally(poll).leaders.length > 1
+}
+const theoNeeded = (s: ScenarioState) => !s.done.includes('switch-theo') && s.poll?.votes.theo !== favourite(s) && endsTied(s)
 
 const drinksBy = (member: MemberId): ScriptEvent => ({
   id: `drinks-${member}`,
-  label: `${member[0].toUpperCase()}${member.slice(1)} answers drinks`,
+  label: `${member[0].toUpperCase()}${member.slice(1)} answers “Who’s having wine?”`,
   ready: (s) => s.decided && !s.bill && s.drinks[member] === null,
   run: (s) => sc.answerDrinks(s, member, s.data.drinks[member]),
 })
@@ -52,27 +84,42 @@ const payBy = (from: MemberId): ScriptEvent => ({
 })
 
 export const SCRIPT: ScriptEvent[] = [
-  // 05: the group votes; Sam and Ren wait for Ari so the hi-fi state (4 of 6) always shows.
-  voteBy('maya', 'ramiro'),
-  voteBy('theo', 'taberna'),
-  voteBy('nic', 'taberna'),
-  voteBy('sam', 'ramiro', (s) => othersIn(s) && ariIn(s)),
-  voteBy('ren', 'ramiro', (s) => othersIn(s) && ariIn(s) && (s.data.members.find((m) => m.id === 'ren')?.planIds ?? []).includes(DINNER_PLAN_ID) && !!s.poll?.eligible.includes('ren')),
+  // 05: the group votes; the rest waits for Ari so the hi-fi state (4 of 6) always shows.
+  voteBy('maya', favourite),
+  voteBy('theo', rival),
+  voteBy('nic', rival),
+  // Then Nic changes his mind. With Sam and Ren on Ramiro too, Ramiro wins clearly whatever
+  // Ari picked (4–1–1, 4–2 or 5–1): the happy path never ends in a tie.
+  {
+    id: 'switch-nic',
+    label: 'Nic changes his vote',
+    ready: (s) => pollOpen(s) && othersIn(s) && ariIn(s) && s.poll?.votes.nic !== favourite(s),
+    run: (s) => sc.vote(s, 'nic', favourite(s)),
+  },
+  // Ren voting from his link for Ari's place would make it 3–3: Theo comes round as well.
+  {
+    id: 'switch-theo',
+    label: 'Theo changes his vote',
+    ready: (s) => pollOpen(s) && othersIn(s) && ariIn(s) && nicSwitched(s) && theoNeeded(s),
+    run: (s) => sc.vote(s, 'theo', favourite(s)),
+  },
+  voteBy('sam', favourite, (s) => othersIn(s) && ariIn(s) && nicSwitched(s) && !theoNeeded(s)),
+  voteBy('ren', favourite, (s) => othersIn(s) && ariIn(s) && nicSwitched(s) && !theoNeeded(s) && renVotes(s)),
   {
     id: 'close-poll',
     label: 'Everyone has voted: poll closes',
     ready: (s) => sc.pollReadyToClose(s),
     run: (s) => sc.decide(s),
   },
-  // 06: drinks answers come in.
+  // 06: wine answers ("Who's having wine?") come in.
   drinksBy('maya'),
   drinksBy('theo'),
   drinksBy('sam'),
   drinksBy('nic'),
-  // 06B: when the drinks answers are in, the evening moves on to 22:30.
+  // 06B: when the wine answers are in, the evening moves on to 22:30.
   {
     id: 'end-dinner',
-    label: 'It’s 22:30: dinner ends',
+    label: 'It’s 22:30 · dinner ends',
     ready: (s) => s.decided && !s.dinnerEnded && (['maya', 'theo', 'sam', 'nic'] as MemberId[]).every((m) => s.drinks[m] !== null),
     run: (s) => sc.endDinner(s),
   },
@@ -92,7 +139,8 @@ export const SCRIPT: ScriptEvent[] = [
   {
     id: 'squared-up',
     label: 'All balances at €0: squared up',
-    ready: (s) => s.screen !== 'squared' && moneyView(s).allSettled,
+    // Once: after Squared Up, Ari goes Home and the trip is a past trip.
+    ready: (s) => s.screen !== 'squared' && !s.squaredSeen && moneyView(s).allSettled,
     run: (s) => sc.showSquaredUp(s),
   },
 ]

@@ -61,7 +61,7 @@ export function GuestPoll() {
       </div>
 
       {winner ? (
-        // Closed: the winner, with the result as the plan shows it ("Picked by 3 of 6").
+        // Closed: the winner, with the result as the plan shows it ("Picked by 4 of 6").
         <motion.div
           key="decided"
           className={styles.done}

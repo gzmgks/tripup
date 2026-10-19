@@ -361,12 +361,11 @@
 
 .guestPill {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
   width: 100%;
   height: 36px;
-  padding: 0 8px;
+  padding: 0 8px 0 5px;
   border: 1px solid var(--act);
   border-radius: 48px;
   background: var(--surface);
@@ -374,6 +373,16 @@
   color: var(--pure-black);
   white-space: nowrap;
   overflow: hidden;
+}
+
+/* "Ren / waiting", centred beside his monogram */
+.guestName {
+  flex: 1 0 0;
+  min-width: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* After Ari answers for Ren (not in the hi-fi): same pill, ring follows the chips */

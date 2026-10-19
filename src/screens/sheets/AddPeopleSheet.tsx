@@ -58,7 +58,7 @@ export function AddPeopleSheet() {
     } catch {
       // Clipboard can be blocked (insecure origin, permissions): the toast still confirms.
     }
-    showToast(`Link copied · ${GUEST_LINK}`)
+    showToast(`✓ Link copied · ${GUEST_LINK}`)
   }
 
   return (

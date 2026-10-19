@@ -93,6 +93,8 @@
   }
 
   .device {
+    /* Landscape: the side gutters clear the Dynamic Island and the corners (0 when upright). */
+    --gutter: max(16px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
     width: 100%;
     height: 100vh;
     height: 100dvh;

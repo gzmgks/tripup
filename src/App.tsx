@@ -36,6 +36,7 @@ const SHEETS: Record<SheetId, () => React.JSX.Element | null> = {
 export default function App() {
   const screen = useApp((s) => s.screen)
   const sheet = useApp((s) => s.sheet)
+  const jumps = useApp((s) => s.jumps)
   const SheetView = sheet ? SHEETS[sheet] : null
 
   // A new screen starts keyboard and screen-reader users at its title, like a page load
@@ -67,7 +68,7 @@ export default function App() {
         {screen === 'guest-pay' && <GuestPay />}
         {screen === 'preview-tokens' && <TokensPreview tone="violet" />}
         {screen === 'preview-light' && <TokensPreview tone="light" />}
-        <AnimatePresence mode="wait">{SheetView && <SheetView key={sheet} />}</AnimatePresence>
+        <AnimatePresence mode="wait">{SheetView && <SheetView key={`${sheet}-${jumps}`} />}</AnimatePresence>
         <Interlude />
         <Toast />
         <DemoControl />

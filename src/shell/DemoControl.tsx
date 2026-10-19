@@ -13,7 +13,7 @@ const GROUPS: { title: string; match: (s: DemoStep) => boolean }[] = [
   { title: 'Design system', match: (s) => s.id.startsWith('tokens') },
 ]
 
-/** Hidden presenter tools: run the group's scripted actions, jump to a step, restart. */
+/** Hidden presenter tools: run the group's scripted actions, skip ahead in time, jump to a step, restart. */
 export function DemoControl() {
   const demoOpen = useApp((s) => s.demoOpen)
   return <AnimatePresence>{demoOpen && <DemoPanel key="demo" />}</AnimatePresence>
@@ -66,6 +66,7 @@ function DemoPanel() {
         </p>
 
         <SystemEvents />
+        <TimeSkip />
         <Shortcuts />
         <JumpList />
       </motion.div>
@@ -124,6 +125,39 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
   )
 }
 
+/** Time skips live here, not in the product UI: the evening jumps to 22:30 (the "Later that evening" moment, then "Who paid?"). */
+function TimeSkip() {
+  const decided = useApp((s) => s.decided)
+  const dinnerEnded = useApp((s) => s.dinnerEnded)
+  const interlude = useApp((s) => s.interlude)
+  const runEndDinner = useApp((s) => s.runEndDinnerWithInterlude)
+  const closeDemo = useApp((s) => s.closeDemo)
+  const ready = decided && !dinnerEnded && !interlude
+  const reason = !decided ? 'Works once tonight’s dinner is decided.' : dinnerEnded || interlude ? 'It’s already 22:30.' : null
+
+  const skip = () => {
+    // Close first, so the presenter sees the moment play.
+    closeDemo()
+    runEndDinner()
+  }
+
+  return (
+    <section className={styles.block} aria-labelledby="demo-time">
+      <h3 id="demo-time" className={styles.blockTitle}>
+        Time
+      </h3>
+      <button type="button" className={styles.secondary} disabled={!ready} aria-describedby={reason ? 'demo-time-why' : undefined} onClick={skip}>
+        Skip to 22:30 · dinner ends
+      </button>
+      {reason && (
+        <p id="demo-time-why" className={styles.hint}>
+          {reason}
+        </p>
+      )}
+    </section>
+  )
+}
+
 function Shortcuts() {
   const state = useApp()
   const { poll, dinnerExpense, openGuestView, closeDemo } = state
@@ -169,7 +203,7 @@ function JumpList() {
   return (
     <>
       <button type="button" className={styles.secondary} onClick={restart}>
-        Restart scenario
+        Restart demo
       </button>
       {[...GROUPS, { title: 'More', match: (s: DemoStep) => !GROUPS.some((g) => g.match(s)) }].map((g) => {
         const steps = DEMO_STEPS.filter(g.match)

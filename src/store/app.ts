@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import type { DrinksAnswer, MemberId, Transfer } from '../domain/types'
-import { nextEvent, runEvent, runReady } from './events'
+import type { DrinksAnswer, MemberId, Place, Transfer } from '../domain/types'
+import { favourite, nextEvent, runEvent, runReady } from './events'
 import type { ScriptEvent } from './events'
 import * as sc from './scenario'
 import type { DecideMode, HubTab, PayMethod, ScenarioState, SheetId, SplitPreset, WineChoice } from './scenario'
@@ -21,6 +21,8 @@ export interface Toast {
 interface AppState extends ScenarioState {
   /** Demo step the scenario was last reset to (for the demo control). */
   stepId: string
+  /** Counts demo jumps, so an open sheet remounts with the new state (its local state resets). */
+  jumps: number
   demoOpen: boolean
   toast: Toast | null
   /** Group events run on timers (autopilot.ts). Off with ?auto=0 or from the demo controls. */
@@ -36,6 +38,7 @@ interface AppState extends ScenarioState {
   jumpTo: (stepId: string) => void
   restart: () => void
   showToast: (text: string) => void
+  hideToast: () => void
   notInDemo: () => void
   dismissBanner: () => void
 
@@ -45,6 +48,14 @@ interface AppState extends ScenarioState {
   setHubTab: (tab: HubTab) => void
   openSheet: (sheet: SheetId) => void
   closeSheet: () => void
+
+  // Explore · Ideas
+  /** Make an Explore catalog place a trip place, so plans and polls can use it. */
+  addPlace: (place: Place) => void
+  /** Save to the group's Ideas (adds the place too). */
+  saveIdea: (place: Place) => void
+  /** Fill tonight's 23:30 drinks slot with a place (adds the place too). */
+  fillDrinks: (place: Place) => void
 
   // 03 · 04 · 05 · 06
   addGuest: (planIds: string[]) => void
@@ -116,9 +127,11 @@ const paid = () => {
 }
 const othersPaid = () => runReady(sc.closeSheet(paid()), (x) => x.payments.length >= 4)
 const squared = () => runReady(othersPaid())
+const homeAfter = () => sc.goHome(squared())
+// Edge case: nobody switches, Ari picks Taberna, Sam and Ren pick Ramiro → 3–3.
 const tie = () => {
-  const s = runReady(sc.vote(runReady(pollSent()), me, 'taberna'))
-  return { ...s, banner: null }
+  const s = sc.vote(runReady(pollSent()), me, 'taberna')
+  return { ...runReady({ ...s, done: [...s.done, 'switch-nic', 'switch-theo'] }), banner: null }
 }
 const fourth = () => ({ ...sc.suggestPlace(hifi1(), 'timeout', 'theo') })
 const failed = () => sc.setPayPhase(pay(), 'failed')
@@ -145,6 +158,7 @@ export const DEMO_STEPS: DemoStep[] = [
   { id: 'pay', label: '09 · Pay Maya', build: pay },
   { id: 'others-paid', label: '09B · Friends pay from their phones', build: othersPaid },
   { id: 'squared', label: '10 · Squared up', build: squared },
+  { id: 'home-after', label: '10B · Home: Lisbon is a past trip', build: homeAfter },
   { id: 'tie', label: 'Edge · Tie, let fate decide', build: tie },
   { id: 'fourth', label: 'Edge · Theo adds a 4th place', build: fourth },
   { id: 'pay-failed', label: 'Edge · A payment fails', build: failed },
@@ -183,6 +197,7 @@ export const useApp = create<AppState>((set, get) => {
   return {
     ...startStep.build(),
     stepId: startStep.id,
+    jumps: 0,
     demoOpen: false,
     toast: null,
     autoplay: autoplayFromUrl,
@@ -194,7 +209,7 @@ export const useApp = create<AppState>((set, get) => {
       const step = DEMO_STEPS.find((s) => s.id === stepId)
       if (!step) return
       clearTimers()
-      set({ ...step.build(), stepId: step.id, demoOpen: false, toast: null, interlude: false })
+      set((s) => ({ ...step.build(), stepId: step.id, jumps: s.jumps + 1, demoOpen: false, toast: null, interlude: false }))
       // Keep the address in sync, so a reload stays where the presenter is (and Restart goes home).
       const url = new URL(window.location.href)
       if (step.id === DEMO_STEPS[0].id) url.searchParams.delete('step')
@@ -203,6 +218,7 @@ export const useApp = create<AppState>((set, get) => {
     },
     restart: () => get().jumpTo(DEMO_STEPS[0].id),
 
+    hideToast: () => set({ toast: null }),
     showToast: (text) => {
       const id = ++toastId
       set({ toast: { id, text } })
@@ -214,11 +230,15 @@ export const useApp = create<AppState>((set, get) => {
     dismissBanner: () => set({ banner: null }),
 
     openTrip: () => apply(sc.openTrip),
-    goHome: () => set({ screen: 'home', sheet: null }),
+    goHome: () => apply(sc.goHome),
     setHubTab: (hubTab) => set({ hubTab }),
     // A toast from the step before shouldn't sit on top of the sheet's content.
     openSheet: (sheet) => set({ sheet, toast: null }),
     closeSheet: () => apply(sc.closeSheet),
+
+    addPlace: (place) => apply((s) => sc.addPlace(s, place)),
+    saveIdea: (place) => apply((s) => sc.saveIdea(sc.addPlace(s, place), place.id)),
+    fillDrinks: (place) => apply((s) => sc.fillDrinks(sc.addPlace(s, place), place.id)),
 
     addGuest: (planIds) => {
       const editing = get().guestAdded
@@ -226,7 +246,7 @@ export const useApp = create<AppState>((set, get) => {
       const titles = get()
         .data.plans.filter((p) => planIds.includes(p.id))
         .map((p) => (p.id === 'd5-dinner' ? 'tonight’s dinner' : p.title.charAt(0).toLowerCase() + p.title.slice(1)))
-      get().showToast(editing ? 'Ren’s plans are saved' : `Ren is in for ${titles.join(' and ') || 'tonight’s dinner'}`)
+      get().showToast(editing ? '✓ Ren’s plans are saved' : `✓ Ren is in for ${titles.join(' and ') || 'tonight’s dinner'}`)
     },
     setDecideMode: (decideMode) => set({ decideMode }),
     startPoll: (optionIds, closesAt) => {
@@ -253,7 +273,7 @@ export const useApp = create<AppState>((set, get) => {
     switchSpot: () => {
       apply(sc.switchSpot)
       const plan = get().data.plans.find((p) => p.id === 'd5-dinner')
-      get().showToast(`Switched to ${plan?.title.replace('Dinner at ', '')} · the group is notified`)
+      get().showToast(`✓ Switched to ${plan?.title.replace('Dinner at ', '')} · the group is notified`)
     },
     answerDrinks: (answer) => apply((s) => sc.answerDrinks(s, s.data.trip.me, answer)),
     endDinner: () => apply(sc.endDinner),
@@ -301,13 +321,21 @@ export const useApp = create<AppState>((set, get) => {
     retryPay: () => apply((s) => sc.setPayPhase(s, 'choose')),
     payAnotherWay: () => apply((s) => sc.choosePayMethod(s, 'card')),
     finishPay: () => set({ sheet: null, payFlow: null }),
-    remind: (name) => get().showToast(`Friendly reminder sent to ${name}`),
+    remind: (name) => get().showToast(`✓ Friendly reminder sent to ${name}`),
     showSquaredUp: () => apply(sc.showSquaredUp),
     closeBill: () => set({ screen: 'hub', hubTab: 'plan' }),
 
     openGuestView: (screen) => set((s) => ({ screen, sheet: null, banner: null, guestReturn: s.screen.startsWith('guest') ? s.guestReturn : s.screen })),
     leaveGuestView: () => set((s) => ({ screen: s.guestReturn })),
-    guestVote: (optionId) => apply((s) => ({ ...sc.vote(s, 'ren', optionId), done: s.done.includes('vote-ren') ? s.done : [...s.done, 'vote-ren'] })),
+    guestVote: (optionId) =>
+      apply((s) => {
+        let next = { ...sc.vote(s, 'ren', optionId), done: s.done.includes('vote-ren') ? s.done : [...s.done, 'vote-ren'] }
+        // His vote, the last one, would leave it level: Theo comes round, as 'switch-theo' does.
+        if (next.pollNotice === 'tie' && !next.done.includes('switch-theo') && next.poll?.votes.theo !== favourite(next)) {
+          next = { ...sc.vote(next, 'theo', favourite(next)), done: [...next.done, 'switch-theo'] }
+        }
+        return next
+      }),
     guestPay: () =>
       apply((s) => {
         const row = moneyView(s).rows.find((r) => r.guest && r.transfer.from === 'ren')

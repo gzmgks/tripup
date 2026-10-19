@@ -7,10 +7,13 @@ import { focusLanding, focusLost } from '../../components/focus'
 import mapDay5 from '../../assets/images/map-day5.webp'
 import paper from '../../assets/images/paper-texture.webp'
 import { Icon } from '../../components/Icon'
+import { pastDay } from '../../data/pastDays'
 import { DINNER_PLAN_ID } from '../../data/seed'
+import { formatEUR } from '../../domain/money'
 import type { Plan } from '../../domain/types'
 import { useApp } from '../../store/app'
 import { useShallow } from 'zustand/react/shallow'
+import { exploreAt } from '../explore/startView'
 import { DINNER_STOP_ATTR, DinnerStop, OpenSlot } from './DinnerStop'
 import type { Entrance } from './DinnerStop'
 import { MapPin } from './MapPin'
@@ -49,6 +52,8 @@ export function PlanTab() {
     poll,
     pollNotice,
     dinnerEnded,
+    ideasCount,
+    stepId,
     showToast,
     openSheet,
   } = useApp(
@@ -57,6 +62,8 @@ export function PlanTab() {
       poll: s.poll,
       pollNotice: s.pollNotice,
       dinnerEnded: s.dinnerEnded,
+      ideasCount: s.ideas.length,
+      stepId: s.stepId,
       showToast: s.showToast,
       openSheet: s.openSheet,
     })),
@@ -67,6 +74,12 @@ export function PlanTab() {
   const today = plans.filter((p) => p.day === trip.today)
   const dinner = plans.find((p) => p.id === DINNER_PLAN_ID)
   const decided = dinner?.status === 'decided'
+
+  // The day on show: today (the live plan) or a past day, read-only. A demo jump starts on today again.
+  const [view, setView] = useState({ day: trip.today, step: stepId })
+  const shownDay = view.step === stepId ? view.day : trip.today
+  const isToday = shownDay === trip.today
+  const showDay = (day: number) => setView({ day, step: stepId })
 
   // What the 20:30 slot shows, and what it showed before the last change (derived
   // during render, so the entering card knows where it came from in the same paint).
@@ -119,6 +132,10 @@ export function PlanTab() {
     revealedOnMount.current = true
     if (mountTarget.current === 'notice') queueReveal('[data-poll-notice]', CLEAR_EDGE)
     else if (mountTarget.current === 'stop') queueReveal(`[${DINNER_STOP_ATTR}]`, CLEAR_TOAST)
+    // Unmounted before it ran (React's dev double mount clears the timer): queue it again next time.
+    return () => {
+      revealedOnMount.current = false
+    }
   }, [queueReveal])
 
   const lastNotice = useRef(pollNotice)
@@ -134,10 +151,10 @@ export function PlanTab() {
   const chip = !dinner
     ? null
     : !decided
-      ? `Upcoming > Dinner ${dinner.time} (not decided)`
+      ? `Next · Dinner ${dinner.time} · not decided`
       : dinnerEnded && after
-        ? `Upcoming > ${after.title} ${after.time}`
-        : `Upcoming > ${dinner.title} ${dinner.time}`
+        ? `Next · ${after.title} · ${after.time}`
+        : `Next · ${dinner.title} · ${dinner.time}`
 
   /** The quick action opens the Decide sheet only while the slot is still open. */
   const decide = () => {
@@ -205,84 +222,135 @@ export function PlanTab() {
             key={d.day}
             type="button"
             role="tab"
-            aria-selected={d.day === trip.today}
+            aria-selected={d.day === shownDay}
             aria-controls="day-panel"
-            tabIndex={d.day === trip.today ? 0 : -1}
-            className={`${styles.day} ${d.day === trip.today ? styles.dayToday : ''}`}
-            onClick={d.day === trip.today ? undefined : () => showToast('Not part of this demo: today is Day 5')}
+            tabIndex={d.day === shownDay ? 0 : -1}
+            className={`${styles.day} ${d.day === trip.today ? styles.dayToday : ''} ${d.day === shownDay ? styles.dayOn : ''}`}
+            onClick={d.day === shownDay ? undefined : () => showDay(d.day)}
           >
             {d.label}
           </button>
         ))}
       </div>
 
-      <div className={styles.map}>
-        <img className={styles.mapImage} src={mapDay5} alt="Map of today’s stops in Lisbon" />
-        <AnimatePresence initial={false}>
-          {decided && dinner && (
-            // The decided dinner becomes a numbered stop over the dashed "?" baked into the map.
-            <MapPin key="pin" number={today.indexOf(dinner) + 1} pop />
-          )}
-        </AnimatePresence>
-        <button type="button" className={styles.expand} aria-label="Expand map" onClick={() => openSheet('full-map')}>
-          <span className={styles.expandIcon}>
-            <Icon name="expand" size={20} height={21.986} />
-          </span>
-        </button>
-        <div className={styles.upcomingRow}>
-          <AnimatePresence mode="wait" initial={false}>
-            {chip && (
-              <motion.span
-                key={chip}
-                className={styles.upcoming}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: reduce ? 0 : 0.16, ease: EASE_OUT }}
-              >
-                {chip}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      {isToday ? (
+        <>
+          <div className={styles.map}>
+            <img className={styles.mapImage} src={mapDay5} alt="Map of today’s stops in Lisbon" />
+            <AnimatePresence initial={false}>
+              {decided && dinner && (
+                // The decided dinner becomes a numbered stop over the dashed "?" baked into the map.
+                <MapPin key="pin" number={today.indexOf(dinner) + 1} pop />
+              )}
+            </AnimatePresence>
+            <button type="button" className={styles.expand} aria-label="Expand map" onClick={() => openSheet('full-map')}>
+              <span className={styles.expandIcon}>
+                <Icon name="expand" size={20} height={21.986} />
+              </span>
+            </button>
+            <div className={styles.upcomingRow}>
+              <AnimatePresence mode="wait" initial={false}>
+                {chip && (
+                  <motion.span
+                    key={chip}
+                    className={styles.upcoming}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: reduce ? 0 : 0.16, ease: EASE_OUT }}
+                  >
+                    {chip}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
 
-      <div className={styles.actions}>
-        <ActionButton label="Decide" onClick={decide}>
-          <Icon name="list" size={16} />
-        </ActionButton>
-        <ActionButton label="Add Plan" onClick={() => openSheet('add-plan')}>
-          <span className={styles.pad2}>
-            <Icon name="plus" size={12} />
-          </span>
-        </ActionButton>
-        <ActionButton label="Explore" onClick={() => openSheet('explore')}>
-          <img className={styles.exploreIcon} src={explore} alt="" />
-        </ActionButton>
-        <ActionButton label={`Ideas (${trip.ideasCount})`} onClick={() => openSheet('explore')}>
-          <Icon name="star" size={16} />
-        </ActionButton>
-      </div>
+          <div className={styles.actions}>
+            <ActionButton label="Decide" onClick={decide}>
+              <Icon name="list" size={16} />
+            </ActionButton>
+            <ActionButton label="Add Plan" onClick={() => openSheet('add-plan')}>
+              <span className={styles.pad2}>
+                <Icon name="plus" size={12} />
+              </span>
+            </ActionButton>
+            <ActionButton label="Explore" onClick={() => openSheet('explore')}>
+              <img className={styles.exploreIcon} src={explore} alt="" />
+            </ActionButton>
+            <ActionButton
+              label={`Ideas (${ideasCount})`}
+              onClick={() => {
+                exploreAt('ideas')
+                openSheet('explore')
+              }}
+            >
+              <Icon name="star" size={16} />
+            </ActionButton>
+          </div>
 
-      <section className={styles.today} id="day-panel" role="tabpanel" aria-labelledby="today-title">
-        <h2 id="today-title" className={styles.todayTitle}>
-          Today
-        </h2>
-        <div className={styles.itinerary}>
-          <img className={styles.paper} src={paper} alt="" aria-hidden="true" />
-          {/* Mirrored copy below the first, so a tall timeline keeps its texture without a seam. */}
-          <img className={styles.paperMore} src={paper} alt="" aria-hidden="true" />
-          <LayoutGroup id="plan">
-            {today.map((plan) => (
-              <div key={plan.id} className={styles.item} data-plan={plan.id}>
-                <span className={styles.time}>{plan.time}</span>
-                {stopFor(plan)}
-              </div>
-            ))}
-          </LayoutGroup>
-        </div>
-      </section>
+          <section className={styles.today} id="day-panel" role="tabpanel" aria-labelledby="today-title">
+            <h2 id="today-title" className={styles.todayTitle}>
+              Today
+            </h2>
+            <div className={styles.itinerary}>
+              <img className={styles.paper} src={paper} alt="" aria-hidden="true" />
+              {/* Mirrored copy below the first, so a tall timeline keeps its texture without a seam. */}
+              <img className={styles.paperMore} src={paper} alt="" aria-hidden="true" />
+              <LayoutGroup id="plan">
+                {today.map((plan) => (
+                  <div key={plan.id} className={styles.item} data-plan={plan.id}>
+                    <span className={styles.time}>{plan.time}</span>
+                    {stopFor(plan)}
+                  </div>
+                ))}
+              </LayoutGroup>
+            </div>
+          </section>
+        </>
+      ) : (
+        <PastDayPanel day={shownDay} />
+      )}
     </motion.main>
+  )
+}
+
+/** Day 1–4: what the group did, read-only (no map, no actions): done stops with what each cost. */
+function PastDayPanel({ day }: { day: number }) {
+  const data = useApp((s) => s.data)
+  const reduce = useReducedMotion()
+  const info = data.days.find((d) => d.day === day)
+  const { plans, spentCents } = pastDay(data, day)
+  return (
+    <motion.section
+      key={day}
+      className={styles.today}
+      id="day-panel"
+      role="tabpanel"
+      aria-labelledby="past-day-title"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: reduce ? 0 : 0.16, ease: EASE_OUT }}
+    >
+      <div className={styles.dayHead}>
+        <h2 id="past-day-title" className={styles.todayTitle}>
+          {info?.label} · {info?.date}
+        </h2>
+        <p className={styles.daySummary}>
+          {plans.length} stops · {formatEUR(spentCents, { decimals: 'auto' })} spent
+        </p>
+      </div>
+      <div className={styles.itinerary}>
+        <img className={styles.paper} src={paper} alt="" aria-hidden="true" />
+        <img className={styles.paperMore} src={paper} alt="" aria-hidden="true" />
+        {plans.map((plan) => (
+          <div key={plan.id} className={styles.item}>
+            <span className={styles.time}>{plan.time}</span>
+            <StopCard plan={plan} wrap />
+          </div>
+        ))}
+      </div>
+    </motion.section>
   )
 }
 
@@ -295,13 +363,13 @@ function ActionButton({ label, onClick, children }: { label: string; onClick: ()
   )
 }
 
-/** Timeline item, variant "Default" (150:154). */
-function StopCard({ plan }: { plan: Plan }) {
+/** Timeline item, variant "Default" (150:154). `wrap`: long lines wrap (past days' ledger lines). */
+function StopCard({ plan, wrap = false }: { plan: Plan; wrap?: boolean }) {
   const done = plan.status === 'done'
   const optional = plan.status === 'optional'
   return (
     <div className={styles.stop}>
-      <div className={styles.stopContent}>
+      <div className={`${styles.stopContent} ${wrap ? styles.stopWrap : ''}`}>
         <p className={optional ? styles.stopTitleStrong : styles.stopTitle}>{plan.title}</p>
         {plan.note && <p className={optional ? styles.stopNoteMuted : styles.stopNote}>{plan.note}</p>}
       </div>

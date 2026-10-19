@@ -1,11 +1,12 @@
 import { motion, useReducedMotion } from 'framer-motion'
+import { Fragment } from 'react'
 import { Avatar } from '../../components/Avatar'
 import { Button } from '../../components/Button'
 import { Icon } from '../../components/Icon'
 import { StatusBar } from '../../shell/StatusBar'
 import { useApp } from '../../store/app'
 import { moneyView } from '../../store/selectors'
-import { tripPlace } from '../money/copy'
+import { inclGuests, tripPlace } from '../money/copy'
 import { DrawCheck } from '../pay/DrawCheck'
 import styles from './SquaredUp.module.css'
 
@@ -18,27 +19,29 @@ const POP = { type: 'spring' as const, stiffness: 460, damping: 26 }
 /** 10 · Squared up: the one warm moment on the settle side. Every count comes from the store. */
 export function SquaredUp() {
   const state = useApp()
-  const { data, guestAdded, payments, showToast, restart } = state
+  const { data, guestAdded, showToast, goHome } = state
   const reduce = useReducedMotion()
   const view = moneyView(state)
   const place = tripPlace(data.trip.name)
   const people = data.members.filter((m) => m.kind === 'crew' || guestAdded)
   const guests = people.filter((m) => m.kind === 'guest')
-  const paid = payments.filter((p) => p.status === 'paid').length
+  const paid = view.paidCount
   const days = data.days.length
-  const summary = `${days} days · ${view.expenses.length} expenses · ${paid} ${paid === 1 ? 'payment' : 'payments'} to close it all`
+  // Payments counted as on the Money tab: the group's simplified ones plus the guest's own ("4 of 4 payments (incl. Ren)").
+  // Each phrase wraps as a whole: "5 days · 23 expenses ·" / "4 payments (incl. Ren) to close it all".
+  const phrases = [
+    `${days} days`,
+    `${view.expenses.length} expenses`,
+    `${paid} ${paid === 1 ? 'payment' : 'payments'}${inclGuests(view)} to close it all`,
+  ]
+  const summary = phrases.join(' · ')
 
   const share = () => {
     const recap = `${data.trip.name} is squared up ✓\n${summary}`
     // The clipboard needs a secure page (not a phone on the local network): say where the recap would go.
     const noShare = () => showToast('Not part of this demo: the recap goes to the group chat')
     if (!navigator.clipboard) return noShare()
-    navigator.clipboard.writeText(recap).then(() => showToast('Trip recap copied · share it with the group'), noShare)
-  }
-
-  const planNext = () => {
-    restart()
-    showToast('The demo starts again from My trips')
+    navigator.clipboard.writeText(recap).then(() => showToast('✓ Trip recap copied · share it with the group'), noShare)
   }
 
   // Warm but calm (settle voice): one check, one soft halo pulse, things rising into place. No confetti.
@@ -107,7 +110,17 @@ export function SquaredUp() {
         </div>
 
         <motion.div className={styles.summary} {...rise(AVATARS_AT + people.length * AVATAR_STAGGER + 0.18, 10)}>
-          <p className={styles.summaryLine}>{summary}</p>
+          <p className={styles.summaryLine}>
+            {phrases.map((phrase, i) => (
+              <Fragment key={phrase}>
+                {i > 0 && ' '}
+                <span className={styles.phrase}>
+                  {phrase}
+                  {i < phrases.length - 1 && '\u00a0·'}
+                </span>
+              </Fragment>
+            ))}
+          </p>
           {guests.map((g) => (
             <p key={g.id} className={styles.summaryNote}>
               {g.name}'s guest access is now closed.
@@ -118,7 +131,8 @@ export function SquaredUp() {
 
       <div className={styles.actions}>
         <Button onClick={share}>Share a trip recap</Button>
-        <Button variant="secondary" onClick={planNext}>
+        {/* Back to My trips, where Lisbon is now a past trip and "Plan a new trip" leads (the demo restarts from Demo controls). */}
+        <Button variant="secondary" onClick={goHome}>
           Plan the next trip
         </Button>
       </div>

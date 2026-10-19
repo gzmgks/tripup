@@ -12,12 +12,13 @@ export const EVENT_DELAY: Record<string, number> = {
   'vote-maya': 3000,
   'vote-theo': 1300,
   'vote-nic': 1300,
-  // After Ari votes, leave the Hi-fi 1 state (4 of 6) on screen for a moment.
-  'vote-sam': 2600,
+  // After Ari votes, leave the Hi-fi 1 state (4 of 6) on screen for a moment, then Nic switches.
+  'switch-nic': 2600,
+  'vote-sam': 1400,
   'vote-ren': 1400,
   // "6 of 6 voted · closing…" before the winner lands.
   'close-poll': 1900,
-  // 06: drinks answers trickle in after the winner has landed.
+  // 06: wine answers trickle in after the winner has landed.
   'drinks-maya': 1800,
   'drinks-theo': 900,
   'drinks-sam': 900,

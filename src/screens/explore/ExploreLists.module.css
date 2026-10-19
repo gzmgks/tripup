@@ -1,0 +1,6 @@
+/* Explore · curated lists and Ideas */
+
+/* The list's one-line intro: no lone word on a second line on small phones */
+.blurb {
+  text-wrap: pretty;
+}

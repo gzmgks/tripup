@@ -1,37 +1,59 @@
+import logoMark from '../../assets/brand/logo-mark.svg'
 import explore from '../../assets/icons/explore.png'
-import mapDay5 from '../../assets/images/map-day5.webp'
+import lisbonTram from '../../assets/images/lisbon-tram.webp'
+import lisbonThumb from '../../assets/images/lisbon-tram-thumb.webp'
+import portoThumb from '../../assets/images/porto-ribeira-thumb.webp'
 import { Avatar } from '../../components/Avatar'
-import { Icon } from '../../components/Icon'
+import { memberName } from '../../components/names'
 import { SectionTitle } from '../../components/SectionTitle'
 import { DINNER_PLAN_ID } from '../../data/seed'
+import type { PastTrip } from '../../data/seed'
 import { formatEUR } from '../../domain/money'
+import type { MemberId } from '../../domain/types'
 import { tally } from '../../domain/poll'
 import { StatusBar } from '../../shell/StatusBar'
 import { useApp } from '../../store/app'
 import { moneyView } from '../../store/selectors'
-import { MapPin } from '../hub/MapPin'
+import { squareParts, tripPlace } from '../money/copy'
 import styles from './Home.module.css'
 
-/** The cover shows the top of today's map, where the route and the dinner pin are (matches object-position in the CSS). */
-const COVER_FOCUS_Y = 0.2
+const PAST_PHOTOS: Record<PastTrip['photo'], string> = { lisbon: lisbonThumb, porto: portoThumb }
 
-/** 01 · Home: my trips. The active trip is pinned with its next step. */
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+/** "Sun 12 Oct" → "October" (as Porto's "March"). */
+const monthOf = (date: string) => {
+  const short = date.split(' ').at(-1)
+  return MONTHS.find((m) => !!short && m.startsWith(short)) ?? ''
+}
+
+const list = new Intl.ListFormat('en-GB', { type: 'conjunction' })
+/** "With Maya, Sam and Nic": who was on a past trip, for screen readers (the avatars are decoration). */
+const withWords = (members: MemberId[], me: MemberId, guests: MemberId[]) => {
+  const names = members.filter((m) => m !== me).map((m) => (guests.includes(m) ? `${memberName(m)} (guest)` : memberName(m)))
+  return names.length ? `With ${list.format(names)}` : ''
+}
+
+/** 01 · Home: my trips. The active trip is pinned with its next step; once squared up it moves to Past trips. */
 export function Home() {
   const state = useApp()
-  const { data, poll, dinnerEnded, openTrip, showToast } = state
+  const { data, poll, dinnerEnded, guestAdded, squaredSeen, openTrip, setHubTab, showToast } = state
   const { trip, crew, plans, pastTrips } = data
+  const guests = data.members.filter((m) => m.kind === 'guest').map((m) => m.id)
+  const me = trip.me
+  const place = tripPlace(trip.name)
 
-  // Ari's trip balance, net of what she has already paid (calm, never red).
+  // Ari's trip balance, net of what she has already paid (calm, never red). At €0 with the group,
+  // Ren's open share is said too, stacked: "You’re square with the group" over "Ren owes you €25".
   const money = moneyView(state)
   const balance = money.myOpen
-  const balanceLine =
+  const balanceLines =
     balance < 0
-      ? `You owe ${formatEUR(-balance, { decimals: 'auto' })}`
+      ? [`You owe ${formatEUR(-balance, { decimals: 'auto' })}`]
       : balance > 0
-        ? `You’re owed ${formatEUR(balance, { decimals: 'auto' })}`
+        ? [`You’re owed ${formatEUR(balance, { decimals: 'auto' })}`]
         : money.allSettled
-          ? 'Squared up ✓'
-          : 'You’re all square'
+          ? ['Squared up ✓']
+          : squareParts(money, me)
 
   // "Next": the open question of the day, as it moves through the flow.
   const today = plans.filter((p) => p.day === trip.today)
@@ -45,60 +67,101 @@ export function Home() {
     }
     if (dinner.status === 'poll' && poll) {
       const t = tally(poll)
-      return `Dinner tonight · ${t.voted} of ${t.eligible} voted`
+      return `Dinner ${dinner.time} · ${t.voted} of ${t.eligible} voted`
     }
-    return 'Dinner tonight · not planned yet'
+    // Same words as the Plan tab's map chip.
+    return `Dinner ${dinner.time} · not decided`
   })()
+  const lastDay = trip.today === data.days.length
+  const tag = lastDay ? `Last night in ${place}` : `Day ${trip.today} in ${place}`
 
-  const planNewTrip = () => showToast('Not part of this demo: tonight is all about Lisbon')
+  // Squared up: Lisbon closes and joins the past trips, newest first. It opens on its settled Money tab.
+  const lisbon: PastTrip = {
+    id: trip.id,
+    name: trip.name,
+    subtitle: `${monthOf(data.days.at(-1)?.date ?? '')} · Squared up ✓`,
+    members: guestAdded ? [...crew, ...guests] : crew,
+    photo: 'lisbon',
+  }
+  const past = squaredSeen ? [lisbon, ...pastTrips] : pastTrips
+  const openPast = (p: PastTrip) => {
+    if (p.id === trip.id) {
+      openTrip()
+      setHubTab('money')
+    } else {
+      showToast(`${p.name} is squared up · nothing left to settle`)
+    }
+  }
+
+  const planNewTrip = () =>
+    showToast(squaredSeen ? `Not part of this demo: the story ends with ${place} squared up` : `Not part of this demo: tonight is all about ${place}`)
 
   return (
     <div className={styles.screen}>
       <StatusBar tone="onLight" />
       <main className={styles.scroll}>
         <header className={styles.header}>
+          <div className={styles.bar}>
+            {/* The Figma lockup (158:293): the mark and a live "TripUp" wordmark, scaled together from the mark's height. */}
+            <p className={styles.logo}>
+              <img className={styles.logoMark} src={logoMark} alt="" />
+              <span className={styles.wordmark}>TripUp</span>
+            </p>
+            <button
+              type="button"
+              className={styles.profile}
+              aria-label="Profile"
+              onClick={() => showToast('Profile (payment methods, notifications) isn’t part of this demo')}
+            >
+              <Avatar member={me} size={36} labelled={false} />
+            </button>
+          </div>
           <h1 className={styles.title}>My trips</h1>
-          <button
-            type="button"
-            className={styles.profile}
-            aria-label="Profile"
-            onClick={() => showToast('Profile (payment methods, notifications) isn’t part of this demo')}
-          >
-            <Avatar member={trip.me} size={36} labelled={false} />
-          </button>
         </header>
 
-        <section className={styles.section} aria-labelledby="active-title">
-          <SectionTitle id="active-title" level={2}>
-            Active now
-          </SectionTitle>
-          <button type="button" className={styles.trip} onClick={openTrip}>
-            <span className={styles.cover}>
-              <img className={styles.coverImage} src={mapDay5} alt="" />
-              {dinner?.status === 'decided' && <MapPin number={today.indexOf(dinner) + 1} focusY={COVER_FOCUS_Y} />}
-            </span>
-            <span className={styles.tripBody}>
-              <span className={styles.tripTitles}>
-                <span className={styles.tripName}>{trip.name}</span>
-                <span className={styles.tripMeta}>{trip.homeSubtitle}</span>
-              </span>
-              {next && (
-                <span className={styles.next}>
-                  <span className={styles.nextLabel}>Next</span>
-                  <span className={styles.nextText}>{next}</span>
+        {!squaredSeen && (
+          <section className={styles.section} aria-labelledby="active-title">
+            <SectionTitle id="active-title" level={2}>
+              Active now
+            </SectionTitle>
+            <button type="button" className={styles.trip} onClick={openTrip}>
+              <span className={styles.cover}>
+                <img className={styles.coverImage} src={lisbonTram} alt="" />
+                <span className={styles.tag}>
+                  {lastDay && <MoonGlyph />}
+                  {tag}
                 </span>
-              )}
-              <span className={styles.tripFoot}>
-                <span className={styles.crew}>
-                  {crew.map((m) => (
-                    <Avatar key={m} member={m} size={28} ring="header" className={styles.crewAvatar} labelled={false} />
-                  ))}
-                </span>
-                <span className={styles.balance}>{balanceLine}</span>
               </span>
-            </span>
-          </button>
-        </section>
+              <span className={styles.tripBody}>
+                <span className={styles.tripTitles}>
+                  <span className={styles.tripName}>{trip.name}</span>
+                  <span className={styles.tripMeta}>{trip.homeSubtitle}</span>
+                </span>
+                {next && (
+                  <span className={styles.next}>
+                    <span className={styles.nextLabel}>Next</span>
+                    <span className={styles.nextText}>{next}</span>
+                  </span>
+                )}
+                <span className={styles.tripFoot}>
+                  <span className={styles.crew}>
+                    {crew.map((m) => (
+                      <Avatar key={m} member={m} size={28} ring="header" className={styles.crewAvatar} labelled={false} />
+                    ))}
+                  </span>
+                  <span className={styles.balance}>
+                    {balanceLines.map((line, i) => (
+                      <span key={line} className={styles.balanceLine}>
+                        {i > 0 && <span className="visually-hidden">, </span>}
+                        {line}
+                      </span>
+                    ))}
+                  </span>
+                </span>
+              </span>
+            </button>
+          </section>
+        )}
 
         <section className={styles.newTrip} aria-labelledby="new-trip-title">
           <div className={styles.newHead}>
@@ -126,24 +189,34 @@ export function Home() {
           <SectionTitle id="past-title" level={2}>
             Past trips
           </SectionTitle>
-          {pastTrips.map((p) => (
-            <button
-              key={p.name}
-              type="button"
-              className={styles.past}
-              onClick={() => showToast(`Not part of this demo: ${p.name} is already squared up`)}
-            >
-              <span className={styles.pastBadge} aria-hidden="true">
-                <Icon name="check" size={24} />
+          {past.map((p) => (
+            <button key={p.id} type="button" className={styles.past} onClick={() => openPast(p)}>
+              <span className={styles.pastPhoto}>
+                <img src={PAST_PHOTOS[p.photo]} alt="" />
               </span>
               <span className={styles.pastText}>
                 <span className={styles.pastName}>{p.name}</span>
                 <span className={styles.caption}>{p.subtitle}</span>
+                <span className={styles.pastCrew}>
+                  {p.members.map((m) => (
+                    <Avatar key={m} member={m} size={22} className={styles.pastAvatar} labelled={false} />
+                  ))}
+                </span>
+                <span className="visually-hidden">{withWords(p.members, me, guests)}</span>
               </span>
             </button>
           ))}
         </section>
       </main>
     </div>
+  )
+}
+
+/** A small crescent for "Last night in Lisbon" (drawn, like the other glyphs; takes the text colour). */
+function MoonGlyph() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+      <path d="M7.6 1.1a5 5 0 1 0 3.3 7.6A4.2 4.2 0 0 1 7.6 1.1Z" />
+    </svg>
   )
 }

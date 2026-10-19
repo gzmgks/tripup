@@ -94,7 +94,7 @@
   color: var(--act);
 }
 
-/* Drinks answer: Lime = chosen; the other option rests on white */
+/* Wine answer: Lime = chosen; the other option rests on white */
 .answer {
   isolation: isolate;
 }
@@ -176,7 +176,7 @@
   color: var(--ink-secondary);
 }
 
-/* "Who's in for drinks?" */
+/* "Who's having wine?" (the wine at dinner, not the 23:30 drinks) */
 .drinks {
   display: flex;
   flex-direction: column;
@@ -213,35 +213,50 @@
   padding-top: 4px;
 }
 
-/* One name per piece, so each can move into its row. */
-.name {
-  display: inline-block;
-}
-
+/* Label column, then the names: left-aligned, so a name that arrives never pushes the others. */
 .answerRow {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
 
 .answerLabel {
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  min-width: 26px; /* "Skip" */
   font: var(--text-caption);
   color: var(--ink-secondary);
 }
 
 .answerNames {
-  margin: 0;
+  flex: 1 0 0;
   min-width: 0;
-  text-align: right;
+  margin: 0;
   font: var(--text-button);
   color: var(--ink);
 }
 
-.skipRow {
+/* "Ren · no answer, counted in": a line per person, folding away once they answer. */
+.noAnswer {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  padding-top: 4px;
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink-secondary);
+}
+
+.noAnswer .noAnswerAvatar {
+  background: var(--surface); /* a guest's monogram reads on the grey card */
+}
+
+.phrase {
+  white-space: nowrap;
+}
+
+.noAnswerName {
+  font: var(--text-button);
+  color: var(--ink);
 }
 
 /* 06B · Log the bill, with room for its one-off pulse */
@@ -270,19 +285,25 @@
   }
 }
 
-.skip {
-  position: relative;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: var(--ink);
-  font: var(--text-button);
-  color: var(--white);
+/* "Dinner ends at 22:30 · Skip ahead": a quiet line in the card's voice; only the action is violet. */
+.later {
+  font: var(--text-caption);
+  line-height: 1.3;
+  color: var(--ink-secondary);
 }
 
+.skip {
+  position: relative;
+  font: var(--text-button);
+  line-height: inherit;
+  color: var(--act);
+}
+
+/* 44pt tap area without changing the drawn size */
 .skip::after {
   content: '';
   position: absolute;
-  inset: -6px -2px;
+  inset: -15px -8px;
 }
 
 /* Logged: like the finished stops above it */

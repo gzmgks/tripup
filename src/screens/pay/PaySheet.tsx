@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'framer-motion'
 import type { ReactNode } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Announce } from '../../components/Announce'
 import { arrowKeys } from '../../components/arrowKeys'
 import { Button } from '../../components/Button'
@@ -13,7 +13,7 @@ import { formatEUR } from '../../domain/money'
 import { useApp } from '../../store/app'
 import type { PayMethod } from '../../store/app'
 import { moneyView } from '../../store/selectors'
-import { subjectOf, tripPlace } from '../money/copy'
+import { squareParts, subjectOf, tripPlace } from '../money/copy'
 import { DrawCheck } from './DrawCheck'
 import styles from './PaySheet.module.css'
 
@@ -55,7 +55,9 @@ export function PaySheet() {
   const payee = memberName(transfer.to)
   const amount = formatEUR(transfer.amountCents)
   const done = phase === 'paid' || phase === 'awaiting-confirmation'
-  const allSquare = moneyView(state).myOpen === 0
+  // At €0 with the group: "You’re all square", or "You’re square with the group · Ren owes you €25" while a guest's share is open.
+  const view = moneyView(state)
+  const square = view.myOpen === 0 ? squareParts(view, data.trip.me) : null
 
   const cta: Record<PayMethod, string> = {
     bank: 'Continue to your bank',
@@ -109,7 +111,15 @@ export function PaySheet() {
     case 'paid':
       stage = (
         <Status tone="done" entrance="pop" icon={<DrawCheck size={32} draw={!reduce} delay={0.2} />} title={`Paid · ${payee} received ${amount}`}>
-          {allSquare ? 'You’re all square' : null}
+          {square?.map((part, i) => (
+            <Fragment key={part}>
+              {i > 0 && ' '}
+              <span className={styles.phrase}>
+                {part}
+                {i < square.length - 1 && '\u00a0·'}
+              </span>
+            </Fragment>
+          ))}
         </Status>
       )
       footer = <Button onClick={finishPay}>Done</Button>
@@ -143,7 +153,7 @@ export function PaySheet() {
   const said: Partial<Record<typeof phase, string>> = {
     approving: 'Approve in your bank app',
     processing: `Sending ${amount} to ${payee}…`,
-    paid: `Paid · ${payee} received ${amount}.${allSquare ? ' You’re all square.' : ''}`,
+    paid: `Paid · ${payee} received ${amount}.${square ? ` ${square.join(' · ')}.` : ''}`,
     'awaiting-confirmation': `Waiting for ${payee} to confirm. It counts as paid once ${payee} confirms.`,
   }
 

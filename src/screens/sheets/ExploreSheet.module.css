@@ -1,21 +1,25 @@
-/* 02 callout · Explore with AI (129:4) */
+/* Explore, full screen (02 callout 129:4, trip-wide) */
 
-/* The group's request, as a BG bubble (not an input) */
-.prompt {
+/* The view tabs stay at the top while the view scrolls under them (the body pads 8 on top). */
+.top {
+  position: sticky;
+  top: -8px;
+  z-index: 1;
+  flex-shrink: 0;
+  margin: -8px 0 -8px;
+  padding: 8px 0;
+  background: var(--surface);
+}
+
+/* Focused controls scroll clear of the sticky tabs (58px bar + 8px), the bar itself never moves the view */
+.panel :is(button, input, a) {
+  scroll-margin-top: 66px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: var(--surface-muted);
-  font: var(--text-body);
-  color: var(--ink);
-}
-
-/* AI is the one acting here: violet */
-.ai {
-  font-weight: 600;
-  color: var(--act);
-}
-
-.menuWrap {
-  overflow: hidden;
+  flex-shrink: 0;
 }

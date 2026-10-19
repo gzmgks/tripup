@@ -96,6 +96,11 @@
   line-height: 1.35;
 }
 
+/* A phrase that wraps as a whole, its " ·" with it: "You’re square with the group ·" / "Ren owes you €25" */
+.phrase {
+  display: inline-block;
+}
+
 .spinner {
   width: 32px;
   height: 32px;

@@ -5,8 +5,9 @@ import { Icon } from '../../components/Icon'
 import { memberName } from '../../components/names'
 import type { Cents, MemberId } from '../../domain/types'
 import type { Payment } from '../../store/scenario'
+import { guestOwedTo } from '../../store/selectors'
 import type { MoneyView } from '../../store/selectors'
-import { balanceWords } from './copy'
+import { balanceWords, guestOwesWords } from './copy'
 import styles from './MoneyTab.module.css'
 
 /** A member's group balance net of the payments already made (guest payments sit outside the group). */
@@ -67,18 +68,26 @@ export function EveryoneBalance({ view, payments, me, logged }: { view: MoneyVie
                 </tr>
               </thead>
               <tbody>
-                {view.crew.map((m) => (
-                  <tr key={m}>
-                    <th scope="row">
-                      <span className={styles.person}>
-                        <Avatar member={m} size={24} labelled={false} />
-                        <span className={styles.personName}>{m === me ? `${memberName(m)} (you)` : memberName(m)}</span>
-                      </span>
-                    </th>
-                    {logged && <td className={styles.before}>{balanceWords(view.before[m] ?? 0)}</td>}
-                    <td className={styles.now}>{balanceWords(openBalance(view, payments, m))}</td>
-                  </tr>
-                ))}
+                {view.crew.map((m) => {
+                  const now = openBalance(view, payments, m)
+                  // A guest pays their share to the payer directly, outside the group: at €0, "all square" alone would hide it.
+                  const guests = now === 0 ? guestOwesWords(guestOwedTo(view, m), m === me) : null
+                  return (
+                    <tr key={m}>
+                      <th scope="row">
+                        <span className={styles.person}>
+                          <Avatar member={m} size={24} labelled={false} />
+                          <span className={styles.personName}>{m === me ? `${memberName(m)} (you)` : memberName(m)}</span>
+                        </span>
+                      </th>
+                      {logged && <td className={styles.before}>{balanceWords(view.before[m] ?? 0)}</td>}
+                      <td className={styles.now}>
+                        {balanceWords(now)}
+                        {guests && <span className={styles.nowGuest}>{guests}</span>}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </motion.div>

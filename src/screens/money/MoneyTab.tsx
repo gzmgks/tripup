@@ -14,7 +14,7 @@ import { moneyView, rowsForDisplay } from '../../store/selectors'
 import type { MoneyView, SettleRow } from '../../store/selectors'
 import { Roll } from '../bill/Roll'
 import { HUB_PANEL_ID, HUB_TAB_ID } from '../hub/ids'
-import { possessiveOf, prose, tripPlace, who } from './copy'
+import { inclGuests, possessiveOf, prose, squareParts, tripPlace, who } from './copy'
 import { EveryoneBalance } from './EveryoneBalance'
 import styles from './MoneyTab.module.css'
 
@@ -64,8 +64,9 @@ export function MoneyTab() {
   const pay = (row: SettleRow) =>
     dinnerExpense ? startPay(row.transfer) : showToast('In this demo you settle up after tonight’s dinner')
 
+  // "instead of 10": what the crew would pay each other without simplifying (moneyView.transfersBefore).
   const settleTitle = `Simplified · ${n} ${n === 1 ? 'payment' : 'payments'}${
-    view.transfersBefore > n ? ` instead of up to ${view.transfersBefore}` : ''
+    view.transfersBefore > n ? ` instead of ${view.transfersBefore}` : ''
   }`
 
   return (
@@ -106,7 +107,7 @@ export function MoneyTab() {
           <div className={styles.progress}>
             {/* Friends' payments land 1–2s apart: each one is read out ("3 of 4 payments"). */}
             <p className={styles.progressLabel} aria-live="polite" aria-atomic="true">
-              <Roll text={String(view.paidCount)} align="left" /> of {view.totalCount} payments
+              <Roll text={String(view.paidCount)} align="left" /> of {view.totalCount} payments{inclGuests(view)}
             </p>
             <div
               className={styles.track}
@@ -232,10 +233,13 @@ function BalanceCard({
   const landing = target === open && Math.abs(shown - open) <= Math.max(25, Math.abs(open - before) * 0.015)
   if (!revealed && landing) setRevealed(true)
 
+  // At €0 with the group, a guest's open share is said too: "You’re square with the group" over "Ren owes you €25".
+  const square = squareParts(view, me)
   const words = (cents: number) =>
-    cents < 0 ? `You owe ${formatEUR(-cents)}` : cents > 0 ? `You’re owed ${formatEUR(cents)}` : 'You’re all square'
-  // The label only changes (cross-fade) once the count reaches it: "You owe €0.01" → "You’re all square".
-  const kind = shown < 0 ? 'owe' : shown > 0 ? 'owed' : 'square'
+    cents < 0 ? `You owe ${formatEUR(-cents)}` : cents > 0 ? `You’re owed ${formatEUR(cents)}` : square[0]
+  // The label only changes (cross-fade) once the count reaches it: "You owe €0.01" → "You’re square with the group",
+  // and again when the guest pays → "You’re all square".
+  const kind = shown < 0 ? 'owe' : shown > 0 ? 'owed' : square.length > 1 ? 'square-guest' : 'square'
 
   let explain: string
   if (!dinner) {
@@ -266,21 +270,22 @@ function BalanceCard({
       </h2>
       {/* Screen readers get the balance itself, not every frame of the count. */}
       <p className="visually-hidden" aria-live="polite">
-        {words(open)}
+        {open === 0 ? square.join(' · ') : words(open)}
       </p>
       <div className={styles.balanceMain}>
         <AnimatePresence mode="popLayout" initial={false}>
-          <motion.p
+          <motion.div
             key={kind}
             aria-hidden="true"
-            className={kind === 'owe' ? styles.headline : styles.headlineSettled}
+            className={styles.headlineBlock}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={reduce ? INSTANT : { duration: 0.24, ease: EASE }}
           >
-            {words(shown)}
-          </motion.p>
+            <p className={kind === 'owe' ? styles.headline : styles.headlineSettled}>{words(shown)}</p>
+            {kind === 'square-guest' && <p className={styles.guestOwes}>{square[1]}</p>}
+          </motion.div>
         </AnimatePresence>
         <AnimatePresence mode="popLayout" initial={false}>
           {showPaid ? (

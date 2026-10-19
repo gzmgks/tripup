@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
-import explore from '../../assets/icons/explore.png'
+import exploreIcon from '../../assets/icons/explore.png'
 import { Icon } from '../../components/Icon'
 import { Sheet } from '../../components/Sheet'
 import { DINNER_PLAN_ID } from '../../data/seed'
 import { useApp } from '../../store/app'
-import type { SheetId } from '../../store/app'
+import { exploreAt } from '../explore/startView'
+import type { ExploreStart } from '../explore/startView'
 import shared from './sheets.module.css'
 import styles from './AddPlanSheet.module.css'
 
@@ -16,7 +17,12 @@ export function AddPlanSheet() {
   const showToast = useApp((s) => s.showToast)
 
   // The choices below fill tonight's open slot, so the day and time stay as they are.
-  const fixedWhen = () => showToast(`Not part of this demo: the new plan is tonight at ${dinner?.time}`)
+  const fixedWhen = () => showToast(`It’s the last night: the new plan is tonight at ${dinner?.time}`)
+  // "Pick a place" lands on Explore's Food list, "Ask AI for ideas" on the agent.
+  const explore = (start: ExploreStart) => {
+    exploreAt(start)
+    openSheet('explore')
+  }
 
   return (
     <Sheet title="New plan" onClose={closeSheet}>
@@ -35,23 +41,20 @@ export function AddPlanSheet() {
         <Choice
           title="Decide together"
           meta="Vote, leave it to chance, or let someone pick"
-          to="decide"
-          onOpen={openSheet}
+          onOpen={() => openSheet('decide')}
           icon={<Icon name="list" size={20} />}
         />
         <Choice
           title="Pick a place"
           meta="Choose it yourself, the group is notified"
-          to="explore"
-          onOpen={openSheet}
+          onOpen={() => explore('food')}
           icon={<Icon name="star" size={20} />}
         />
         <Choice
           title="Ask AI for ideas"
-          meta="Nearby, open now, different vibes"
-          to="explore"
-          onOpen={openSheet}
-          icon={<img className={styles.exploreIcon} src={explore} alt="" />}
+          meta="A short chat: what, where, when, budget"
+          onOpen={() => explore('ai')}
+          icon={<img className={styles.exploreIcon} src={exploreIcon} alt="" />}
         />
       </div>
       <div className={shared.end} aria-hidden="true" />
@@ -62,14 +65,13 @@ export function AddPlanSheet() {
 interface ChoiceProps {
   title: string
   meta: string
-  to: SheetId
-  onOpen: (sheet: SheetId) => void
+  onOpen: () => void
   icon: ReactNode
 }
 
-function Choice({ title, meta, to, onOpen, icon }: ChoiceProps) {
+function Choice({ title, meta, onOpen, icon }: ChoiceProps) {
   return (
-    <button type="button" className={`${shared.card} ${styles.choice}`} onClick={() => onOpen(to)}>
+    <button type="button" className={`${shared.card} ${styles.choice}`} onClick={onOpen}>
       <span className={shared.iconTile} aria-hidden="true">
         {icon}
       </span>

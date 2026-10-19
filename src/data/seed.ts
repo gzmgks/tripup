@@ -25,7 +25,6 @@ export interface TripInfo {
   subtitle: string
   /** Home card line. */
   homeSubtitle: string
-  ideasCount: number
 }
 
 export interface TripDay {
@@ -36,8 +35,13 @@ export interface TripDay {
 }
 
 export interface PastTrip {
+  id: string
   name: string
   subtitle: string
+  /** Who was on that trip (Home shows their avatars). */
+  members: MemberId[]
+  /** Photo key; the UI maps it to the image (src/assets/images). */
+  photo: 'porto' | 'lisbon'
 }
 
 export interface DinnerBill {
@@ -81,7 +85,7 @@ export interface TripState {
   /** The 22 expenses logged before tonight's dinner. */
   expenses: Expense[]
   dinnerBill: DinnerBill
-  /** "Who's in for drinks?" answers. Ari's is her own; it starts on the default 'in'. */
+  /** "Who's having wine?" answers. Ari's is her own; it starts on the default 'in'. */
   drinks: Record<MemberId, DrinksAnswer>
   pollScript: PollScript
 }
@@ -91,6 +95,7 @@ const EVERYONE: readonly MemberId[] = ['ari', 'maya', 'theo', 'sam', 'nic', 'ren
 
 export const DINNER_PLAN_ID = 'd5-dinner'
 export const DINNER_POLL_ID = 'd5-dinner-poll'
+export const DRINKS_PLAN_ID = 'd5-drinks'
 export const DINNER_END_TIME: ClockTime = '22:30'
 
 const trip: TripInfo = {
@@ -101,10 +106,26 @@ const trip: TripInfo = {
   today: 5,
   subtitle: 'Day 5 of 5 · Sun 12 Oct',
   homeSubtitle: 'Day 5 of 5 · 8–12 Oct · 5 people',
-  ideasCount: 7,
 }
 
-const pastTrips: PastTrip[] = [{ name: 'Porto', subtitle: 'March · Squared up ✓' }]
+// A different group than Lisbon (Theo wasn't there), so the avatars read as that trip's own.
+const pastTrips: PastTrip[] = [
+  { id: 'porto', name: 'Porto', subtitle: 'March · Squared up ✓', members: ['ari', 'maya', 'sam', 'nic'], photo: 'porto' },
+]
+
+/**
+ * The group's Ideas list (the "Ideas (7)" on the Plan tab). Ramiro and A Cevicheria are trip
+ * places; the other five are Explore catalog ids (src/data/explore.ts).
+ */
+export const INITIAL_IDEAS: readonly string[] = [
+  'ramiro',
+  'cevicheria',
+  'senhora-monte',
+  'manteigaria',
+  'park-rooftop',
+  'jardim-torel',
+  'feira-ladra',
+]
 
 const members: Member[] = [
   { id: 'ari', name: 'Ari', short: 'A', kind: 'crew' },
@@ -197,7 +218,7 @@ const plans: Plan[] = [
     attendees: [...EVERYONE],
   },
   {
-    id: 'd5-drinks',
+    id: DRINKS_PLAN_ID,
     day: 5,
     time: '23:30',
     title: 'Drinks in Bairro Alto',

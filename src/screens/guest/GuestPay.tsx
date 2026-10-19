@@ -83,9 +83,9 @@ export function GuestPay() {
 }
 
 /**
- * "Food €25.00 · no drinks": the guest's part of each item of the saved bill.
- * The rest of the bill is "Food" when drinks were split out; a split-out item
- * the guest is not in reads "no drinks".
+ * "Food €25.00 · no wine": the guest's part of each item of the saved bill.
+ * The rest of the bill is "Food" when an item (the wine) was split out; a split-out
+ * item the guest is not in reads "no wine", by its own name.
  */
 function breakdown(expense: Expense, member: MemberId): string {
   const splitOut = expense.items.filter((i) => i.label !== 'rest')
@@ -95,11 +95,12 @@ function breakdown(expense: Expense, member: MemberId): string {
     if (!item.participants.includes(member)) continue
     const share = splitEqually(item.amountCents, item.participants, expense.paidBy)[member]
     items += share
-    const label = item.label !== 'rest' ? item.label : splitOut.length ? 'Food' : 'Food & drinks'
+    const label = item.label !== 'rest' ? item.label : splitOut.length ? 'Food' : 'Food & wine'
     parts.push(`${label} ${formatEUR(share)}`)
   }
   const tip = shareFor(member, expense) - items
   if (tip > 0) parts.push(`Tip ${formatEUR(tip)}`)
-  if (splitOut.length > 0 && !splitOut.some((i) => i.participants.includes(member))) parts.push('no drinks')
+  const without = splitOut.filter((i) => !i.participants.includes(member))
+  if (without.length > 0) parts.push(`no ${without.map((i) => i.label.toLowerCase()).join(' or ')}`)
   return parts.join(' · ')
 }

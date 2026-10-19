@@ -13,6 +13,7 @@ import { DINNER_PLAN_ID } from '../../data/seed'
 import { MAX_POLL_OPTIONS } from '../../domain/poll'
 import type { MemberId } from '../../domain/types'
 import { useApp } from '../../store/app'
+import { decideStart, resetDecideStart } from './decideStart'
 import type { DecideMode } from '../../store/app'
 import { Chip, Segmented } from './parts'
 import shared from './sheets.module.css'
@@ -62,9 +63,16 @@ export function DecideSheet() {
   const script = data.pollScript.poll
   const me = data.trip.me
   const dinner = data.plans.find((p) => p.id === DINNER_PLAN_ID)
-  const candidates = script.optionIds.map((id) => data.places.find((p) => p.id === id)).filter((p) => p !== undefined)
+  // A place Ari came from ("Add to a poll" in Explore or on the map) joins the AI picks, first.
+  // It waits until the poll starts or the dinner is decided (a "+ Add Ren" detour keeps it).
+  const [optionIds] = useState(() => {
+    const extra = decideStart()
+    const known = extra && !script.optionIds.includes(extra) && data.places.some((p) => p.id === extra)
+    return known ? [extra, ...script.optionIds].slice(0, MAX_POLL_OPTIONS) : script.optionIds
+  })
+  const candidates = optionIds.map((id) => data.places.find((p) => p.id === id)).filter((p) => p !== undefined)
 
-  const [selected, setSelected] = useState<string[]>(script.optionIds)
+  const [selected, setSelected] = useState<string[]>(optionIds)
   const [closes, setCloses] = useState<Closes>('all-or-deadline')
   const [picker, setPicker] = useState<MemberId>('maya')
   const [handingOff, setHandingOff] = useState(false)
@@ -77,9 +85,13 @@ export function DecideSheet() {
   const timers = useRef<number[]>([])
   useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), [])
   const later = (ms: number, fn: () => void) => timers.current.push(window.setTimeout(fn, ms))
-  /** Closing the sheet mid-spin cancels it: the sheet keeps rendering while it slides out. */
+  /** Closing the sheet (or a demo jump) mid-spin cancels it: the sheet keeps rendering while it slides out. */
+  const [jumpsAtOpen] = useState(() => useApp.getState().jumps)
   const finish = (placeId: string, pickedBy?: MemberId) => {
-    if (useApp.getState().sheet === 'decide') decideWithout(placeId, pickedBy)
+    const now = useApp.getState()
+    if (now.sheet !== 'decide' || now.jumps !== jumpsAtOpen) return
+    resetDecideStart()
+    decideWithout(placeId, pickedBy)
   }
 
   const busy = spin.phase !== 'idle' || handingOff
@@ -98,7 +110,7 @@ export function DecideSheet() {
       }
       setSelected(selected.filter((x) => x !== id))
     } else if (selected.length < MAX_POLL_OPTIONS) {
-      setSelected(script.optionIds.filter((x) => x === id || selected.includes(x)))
+      setSelected(optionIds.filter((x) => x === id || selected.includes(x)))
     }
   }
 
@@ -125,7 +137,8 @@ export function DecideSheet() {
 
   const send = () => {
     if (alreadyDeciding()) return
-    startPoll(selected, closesAt())
+    resetDecideStart()
+    startPoll(selected.filter((id) => data.places.some((p) => p.id === id)), closesAt())
   }
 
   const runSpin = () => {
@@ -156,7 +169,7 @@ export function DecideSheet() {
   const handOff = () => {
     if (busy || alreadyDeciding()) return
     setHandingOff(true)
-    showToast(`${memberName(picker)} picks tonight’s spot`)
+    showToast(`✓ ${memberName(picker)} picks tonight’s spot`)
     later(HAND_OFF_MS, () => finish(SPIN_TARGET, picker))
   }
 

@@ -2,12 +2,12 @@
 // points are built by replaying them, so every snapshot is a state the real
 // flow can reach.
 
-import { createInitialTrip, DINNER_PLAN_ID, DINNER_POLL_ID, decideDinner } from '../data/seed'
+import { createInitialTrip, DINNER_PLAN_ID, DINNER_POLL_ID, DRINKS_PLAN_ID, decideDinner, INITIAL_IDEAS } from '../data/seed'
 import type { TripState } from '../data/seed'
 import { buildDinnerExpense } from '../domain/money'
 import type { BillDraft } from '../domain/money'
 import { addOption, castVote, closePoll, shouldClose, tally } from '../domain/poll'
-import type { ClockTime, DrinksAnswer, Expense, MemberId, Poll, Transfer } from '../domain/types'
+import type { ClockTime, DrinksAnswer, Expense, MemberId, Place, Poll, Transfer } from '../domain/types'
 
 export type ScreenId = 'home' | 'hub' | 'bill' | 'squared' | 'guest-poll' | 'guest-pay' | 'preview-tokens' | 'preview-light'
 export type HubTab = 'plan' | 'money'
@@ -86,6 +86,10 @@ export interface ScenarioState {
   failNextPayment: boolean
   /** Where "Back to Ari's phone" returns to. */
   guestReturn: ScreenId
+  /** The group's Ideas: place ids (trip places or Explore catalog ids). */
+  ideas: string[]
+  /** Squared Up has shown: the trip is closed and Home lists it under Past trips. */
+  squaredSeen: boolean
 }
 
 let bannerId = 0
@@ -116,6 +120,8 @@ export function freshScenario(): ScenarioState {
     done: [],
     failNextPayment: false,
     guestReturn: 'hub',
+    ideas: [...INITIAL_IDEAS],
+    squaredSeen: false,
   }
 }
 
@@ -128,18 +134,50 @@ const mapPlans = (s: ScenarioState, f: (p: TripState['plans'][number]) => TripSt
 
 export const openTrip = (s: ScenarioState): ScenarioState => ({ ...s, screen: 'hub', hubTab: 'plan', sheet: null })
 
+export const goHome = (s: ScenarioState): ScenarioState => ({ ...s, screen: 'home', sheet: null, payFlow: null, banner: null })
+
+// ── Explore · Ideas ────────────────────────────────────────────────────
+
+/** Make an Explore catalog place a trip place (idempotent), so plans and polls can use it. */
+export const addPlace = (s: ScenarioState, place: Place): ScenarioState =>
+  s.data.places.some((p) => p.id === place.id) ? s : { ...s, data: { ...s.data, places: [...s.data.places, place] } }
+
+/** "Add to a plan" → tonight's 23:30 drinks slot: the place fills it (the plan stays optional). */
+export function fillDrinks(s: ScenarioState, placeId: string): ScenarioState {
+  const place = s.data.places.find((p) => p.id === placeId)
+  if (!place) return s
+  return { ...s, data: mapPlans(s, (p) => (p.id === DRINKS_PLAN_ID ? { ...p, placeId, title: `Drinks at ${place.shortName ?? place.name}` } : p)) }
+}
+
+/** Save a place to the group's Ideas (idempotent). */
+export const saveIdea = (s: ScenarioState, placeId: string): ScenarioState =>
+  s.ideas.includes(placeId) ? s : { ...s, ideas: [...s.ideas, placeId] }
+
 // ── 03 · Add people ────────────────────────────────────────────────────
 
 export function addGuest(s: ScenarioState, planIds: string[] = [DINNER_PLAN_ID]): ScenarioState {
   const ids = planIds.length ? planIds : [DINNER_PLAN_ID]
-  // Added while the dinner poll is live: he gets a vote too.
-  const poll =
-    s.poll && s.poll.status === 'open' && ids.includes(DINNER_PLAN_ID) && !s.poll.eligible.includes('ren')
-      ? { ...s.poll, eligible: [...s.poll.eligible, 'ren' as const] }
-      : s.poll
+  // Added while the dinner poll is live: he gets a vote too. Moved off the dinner: he loses it,
+  // so the poll doesn't wait for him.
+  let poll = s.poll
+  if (poll && poll.status === 'open') {
+    const inDinner = ids.includes(DINNER_PLAN_ID)
+    if (inDinner && !poll.eligible.includes('ren')) poll = { ...poll, eligible: [...poll.eligible, 'ren' as const] }
+    if (!inDinner && poll.eligible.includes('ren')) {
+      const { ren: _dropped, ...votes } = poll.votes
+      poll = { ...poll, eligible: poll.eligible.filter((m) => m !== 'ren'), votes }
+    }
+  }
+  // His vote went with him: if he comes back, he votes again (the scripted vote can run).
+  const done = poll && !poll.votes.ren && s.poll?.votes.ren ? s.done.filter((id) => id !== 'vote-ren') : s.done
+  // The tie callout follows the new count (same rule as vote()).
+  const t = poll && poll.status === 'open' ? tally(poll) : null
+  const pollNotice = t && s.pollNotice === 'tie' && !(t.waitingFor.length === 0 && t.leaders.length > 1) ? null : s.pollNotice
   return {
     ...s,
     poll,
+    done,
+    pollNotice,
     guestAdded: true,
     guestPlanIds: ids,
     sheet: null,
@@ -216,14 +254,17 @@ function landWinner(s: ScenarioState, placeId: string): ScenarioState {
 
 /** "Switch spot": the runner-up takes the slot, no re-vote. */
 export function switchSpot(s: ScenarioState): ScenarioState {
-  if (!s.poll || !s.decided) return s
+  if (!s.poll || !s.decided || !canSwitchSpot(s)) return s
   const t = tally(s.poll)
   const ranked = [...t.options].sort((a, b) => b.count - a.count)
   const current = s.data.plans.find((p) => p.id === DINNER_PLAN_ID)?.placeId
   const next = ranked.find((o) => o.optionId !== current)
   if (!next) return s
-  return landWinner({ ...s, poll: { ...s.poll, winnerId: next.optionId } }, next.optionId)
+  return landWinner({ ...s, poll: { ...s.poll, winnerId: next.optionId, decidedBy: 'votes' } }, next.optionId)
 }
+
+/** Only a decision with votes has a runner-up to switch to (a direct pick or a spin has none). */
+export const canSwitchSpot = (s: ScenarioState): boolean => !!s.poll && tally(s.poll).voted > 0
 
 /** Start a decided dinner by chance or by one person (04 callouts). */
 export function decideWithout(s: ScenarioState, placeId: string, pickedBy?: MemberId): ScenarioState {
@@ -250,7 +291,7 @@ export const endDinner = (s: ScenarioState): ScenarioState =>
 
 export function openBill(s: ScenarioState): ScenarioState {
   const d = s.data.dinnerBill
-  const attendees = d.attendees.filter((m) => m !== 'ren' || s.guestAdded)
+  const attendees = billAttendees(s)
   const wine = {} as Record<MemberId, WineChoice>
   for (const m of attendees) {
     const a = s.drinks[m]
@@ -265,8 +306,13 @@ export function openBill(s: ScenarioState): ScenarioState {
   }
 }
 
+/** Who's at dinner: the crew, plus Ren once he's a guest for the dinner (same rule as the stop). */
 export function billAttendees(s: ScenarioState): MemberId[] {
-  return s.data.dinnerBill.attendees.filter((m) => m !== 'ren' || s.guestAdded)
+  const d = s.data.dinnerBill
+  return d.attendees.filter((m) => {
+    const member = s.data.members.find((x) => x.id === m)
+    return member?.kind === 'crew' || (s.guestAdded && (member?.planIds ?? []).includes(d.planId))
+  })
 }
 
 export function billDraft(s: ScenarioState): BillDraft | null {
@@ -342,7 +388,14 @@ export const closeSheet = (s: ScenarioState): ScenarioState => ({
   payFlow: s.payFlow && (s.payFlow.phase === 'approving' || s.payFlow.phase === 'processing') ? s.payFlow : null,
 })
 
-export const showSquaredUp = (s: ScenarioState): ScenarioState => ({ ...s, screen: 'squared', sheet: null, payFlow: null, banner: null })
+export const showSquaredUp = (s: ScenarioState): ScenarioState => ({
+  ...s,
+  screen: 'squared',
+  sheet: null,
+  payFlow: null,
+  banner: null,
+  squaredSeen: true,
+})
 
 // ── Helpers used by the event script ────────────────────────────────────
 

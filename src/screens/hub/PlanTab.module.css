@@ -47,8 +47,13 @@
   inset: -6px -4px;
 }
 
+/* "Day 5 · Today" keeps its width, so the row doesn't shift when a past day is on show. */
 .dayToday {
   flex: 0 0 auto;
+}
+
+/* The day on show: Lime = chosen */
+.dayOn {
   background: var(--chosen);
   color: var(--ink);
 }
@@ -191,6 +196,20 @@
   color: var(--ink-secondary);
 }
 
+/* A past day: its date, and a quiet count of what happened */
+.dayHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.daySummary {
+  font: var(--text-caption);
+  color: var(--ink-time);
+  white-space: nowrap;
+}
+
 .itinerary {
   position: relative;
   display: flex;
@@ -284,6 +303,11 @@
   justify-content: center;
   gap: 8px;
   white-space: nowrap;
+}
+
+/* Past days: a long ledger line wraps instead of running under the edge. */
+.stopWrap {
+  white-space: normal;
 }
 
 .stopTitle {

@@ -1,18 +1,20 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'framer-motion'
 import { useRef, useState } from 'react'
-import type { Ref } from 'react'
 import { arrowKeys } from '../../components/arrowKeys'
+import { Avatar } from '../../components/Avatar'
 import { Button } from '../../components/Button'
 import { Icon } from '../../components/Icon'
 import { memberName } from '../../components/names'
 import { Announce } from '../../components/Announce'
 import { DINNER_END_TIME } from '../../data/seed'
-import { expenseTotal, formatEUR } from '../../domain/money'
 import { tally } from '../../domain/poll'
 import type { DrinksAnswer, MemberId, Plan } from '../../domain/types'
 import { useApp } from '../../store/app'
+import { expenseLine } from '../../data/pastDays'
+import { exploreAt } from '../explore/startView'
+import { canSwitchSpot } from '../../store/scenario'
 import { useShallow } from 'zustand/react/shallow'
-import { EASE_OUT, TRAVEL_SPRING, grow, placeNameId, rise } from './motion'
+import { TRAVEL_SPRING, grow, placeNameId, rise } from './motion'
 import styles from './DinnerStop.module.css'
 
 /** Marks the decided stop (the Plan tab scrolls it into view when the winner lands). */
@@ -56,7 +58,10 @@ export function OpenSlot({ plan }: { plan: Plan }) {
         >
           Decide
         </button>
-        <button type="button" className={`${styles.small} ${styles.smallChip}`} onClick={() => openSheet('explore')}>
+        <button type="button" className={`${styles.small} ${styles.smallChip}`} onClick={() => {
+            exploreAt('food')
+            openSheet('explore')
+          }}>
           Pick a place
         </button>
       </div>
@@ -97,8 +102,9 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
       showToast: s.showToast,
     })),
   )
+  const canSwitch = useApp(canSwitchSpot)
   const reduce = useReducedMotion()
-  // "Skip to 22:30" leaves with the chips: keyboard focus moves on to the "Log the bill" that replaces it.
+  // "Skip ahead" leaves with the chips: keyboard focus moves on to the "Log the bill" that replaces it.
   const focusLogBill = useRef(false)
   const me = data.trip.me
   const place = data.places.find((p) => p.id === plan.placeId)
@@ -111,7 +117,7 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
         <div className={styles.doneText}>
           <p className={styles.doneTitle}>{plan.title}</p>
           <p className={styles.note}>
-            Dinner · {formatEUR(expenseTotal(dinnerExpense))} · paid by {dinnerExpense.paidBy === me ? 'you' : memberName(dinnerExpense.paidBy)}
+            {expenseLine(data, dinnerExpense, 'Dinner')}
           </p>
         </div>
         <span className={styles.check} role="img" aria-label="Done">
@@ -139,19 +145,15 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
     return `Picked by ${votes} of ${t.eligible}`
   })()
 
-  const groups: { label: string; answer: DrinksAnswer }[] = [
-    { label: 'In', answer: 'in' },
-    { label: 'Skip', answer: 'skip' },
-    { label: 'No answer yet', answer: null },
-  ]
+  // "Who's having wine?" Anyone who hasn't answered is counted in until they opt out, as on the bill.
   const who = (answer: DrinksAnswer): MemberId[] => attendees.filter((m) => (drinks[m] ?? null) === answer)
+  const wineIn = who('in')
+  const skipping = who('skip')
+  const noAnswer = who(null)
   const mine = drinks[me] ?? null
   // Answers land ~1s apart: screen readers hear the tally once they pause, not each name.
-  const drinksSaid = `Drinks · ${groups
-    .map(({ label, answer }) => [label, who(answer).length] as const)
-    .filter(([label, n]) => n > 0 || label === 'In')
-    .map(([label, n]) => `${label}: ${n}`)
-    .join(', ')}`
+  const counted = noAnswer.length > 0 ? ` (${noAnswer.map(memberName).join(', ')}: no answer, counted in)` : ''
+  const drinksSaid = `Wine · In: ${wineIn.length + noAnswer.length}${counted}${skipping.length > 0 ? `, Skip: ${skipping.length}` : ''}`
   // Answers stay editable until the bill is opened (its wine chips take over from there).
   const editable = !bill
 
@@ -162,9 +164,9 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
   const drinksCard = (
     <motion.div className={styles.drinks} role="group" aria-labelledby="drinks-title" {...rise(play, reduce, 0.17)}>
       <p id="drinks-title" className={styles.drinksTitle}>
-        Who's in for drinks?
+        Who's having wine?
       </p>
-      <p className={styles.drinksNote}>For the wine at dinner: it's split among the people who are in.</p>
+      <p className={styles.drinksNote}>It's split among the people who are in. No answer counts as in.</p>
       {editable && (
         <div className={styles.buttons} role="radiogroup" aria-label="Your answer" onKeyDown={arrowKeys()}>
           <AnswerButton label="I'm in" selected={mine === 'in'} waiting={mine === null} grow={play} onClick={() => answerDrinks('in')} />
@@ -173,26 +175,41 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
       )}
       <Announce text={drinksSaid} settle={1500} />
       <dl className={styles.answers}>
+        <div className={styles.answerRow}>
+          <dt className={styles.answerLabel}>In</dt>
+          <dd className={styles.answerNames}>
+            <p>
+              <Names members={wineIn} empty={noAnswer.length === 0 ? '–' : undefined} />
+            </p>
+            {/* No answer yet: counted in, each on a line of their own until they answer. */}
+            <AnimatePresence initial={false}>
+              {noAnswer.map((m) => (
+                <motion.div key={m} {...grow(0, reduce)}>
+                  <p className={styles.noAnswer}>
+                    <Avatar member={m} size={20} labelled={false} className={styles.noAnswerAvatar} />
+                    {/* On a narrow phone it breaks between phrases, never inside one. */}
+                    <span>
+                      <span className={styles.noAnswerName}>{memberName(m)}</span>{'\u00a0'}· <span className={styles.phrase}>no answer,</span>{' '}
+                      <span className={styles.phrase}>counted in</span>
+                    </span>
+                  </p>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </dd>
+        </div>
+        {/* "Skip" only once someone skips. */}
         <AnimatePresence initial={false}>
-          {groups.map(({ label, answer }) => {
-            const names = who(answer)
-            // "In" always shows; the others only once someone is in them.
-            if (answer !== 'in' && names.length === 0) return null
-            return (
-              <motion.div key={label} className={styles.answerRow} {...grow(6, reduce)}>
-                <dt className={styles.answerLabel}>{label}</dt>
-                <dd className={styles.answerNames}>
-                  {names.length === 0 && '–'}
-                  {/* Each answer moves its name into its row. */}
-                  <AnimatePresence initial={false} mode="popLayout">
-                    {names.map((m, i) => (
-                      <DrinkName key={m} member={m} lead={i > 0} />
-                    ))}
-                  </AnimatePresence>
-                </dd>
-              </motion.div>
-            )
-          })}
+          {skipping.length > 0 && (
+            <motion.div key="skip" className={styles.answerRow} {...grow(6, reduce)}>
+              <dt className={styles.answerLabel}>Skip</dt>
+              <dd className={styles.answerNames}>
+                <p>
+                  <Names members={skipping} />
+                </p>
+              </dd>
+            </motion.div>
+          )}
         </AnimatePresence>
       </dl>
     </motion.div>
@@ -227,7 +244,7 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
         )}
       </div>
 
-      {/* 06 → 06B: the chips and the demo shortcut fold away, Log the bill rises in. */}
+      {/* 06 → 06B: the chips and "Skip ahead" fold away, Log the bill rises in. */}
       <AnimatePresence initial={play}>
         {!dinnerEnded && (
           <motion.div
@@ -245,31 +262,35 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
             >
               Directions
             </button>
-            <button type="button" className={`${styles.chip} ${styles.chipAct}`} onClick={switchSpot}>
-              Switch spot
-            </button>
+            {canSwitch && (
+              <button type="button" className={`${styles.chip} ${styles.chipAct}`} onClick={switchSpot}>
+                Switch spot
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 06B keeps the drinks answers (the bill pre-fills from them) above Log the bill. */}
+      {/* 06B keeps the wine answers (the bill pre-fills from them) above Log the bill. */}
       {editable && drinksCard}
 
       <AnimatePresence initial={play}>
         {!dinnerEnded ? (
-          <motion.div key="skip" className={styles.skipRow} {...rise(play, reduce, 0.22)} exit={grow(12, reduce).exit}>
-            {/* Demo shortcut, styled like the other presenter pills (black), not product UI */}
+          <motion.p key="skip" className={styles.later} {...rise(play, reduce, 0.22)} exit={grow(12, reduce).exit}>
+            {/* A quiet way on to 22:30; the evening also moves on by itself once the answers are in. */}
+            Dinner ends at {plan.endTime ?? DINNER_END_TIME} ·{' '}
             <button
               type="button"
               className={styles.skip}
+              aria-label={`Skip ahead to ${plan.endTime ?? DINNER_END_TIME}`}
               onClick={() => {
                 focusLogBill.current = true
                 runEndDinnerWithInterlude()
               }}
             >
-              Skip to {plan.endTime ?? DINNER_END_TIME} →
+              Skip ahead
             </button>
-          </motion.div>
+          </motion.p>
         ) : (
           <motion.div
             key="log"
@@ -292,24 +313,39 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
 }
 
 /**
- * One name in a drinks row. The names already there slide to make room and the
- * new one fades in place a beat later, so nothing crosses.
+ * Names in running text ("Ari, Maya, Theo"). Each comma is its own piece, keyed by
+ * the name it introduces, so it comes and goes with that name. Nothing slides: a
+ * leaving name fades where it stands before the line closes up, and a new one takes
+ * its place unseen before it fades in, so the line reads at every moment.
  */
-function DrinkName({ member, lead, ref }: { member: MemberId; lead: boolean; ref?: Ref<HTMLSpanElement> }) {
+function Names({ members, empty }: { members: MemberId[]; empty?: string }) {
+  const pieces =
+    members.length === 0 && empty
+      ? [{ key: 'empty', text: empty }]
+      : members.flatMap((m, i) => [...(i > 0 ? [{ key: `sep-${m}`, text: ', ' }] : []), { key: m, text: memberName(m) }])
+  return (
+    <AnimatePresence initial={false}>
+      {pieces.map((p) => (
+        <NamePiece key={p.key} text={p.text} />
+      ))}
+    </AnimatePresence>
+  )
+}
+
+/** A leaving piece is only a visual echo: screen readers hear the list as it is now. */
+function NamePiece({ text }: { text: string }) {
   const reduce = useReducedMotion()
+  const present = useIsPresent()
   return (
     <motion.span
-      ref={ref}
-      className={styles.name}
-      layout="position"
+      aria-hidden={present ? undefined : true}
       initial={reduce ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.12 } }}
-      transition={{ opacity: { duration: 0.2, delay: 0.12 }, layout: { duration: 0.3, ease: EASE_OUT } }}
+      exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.14 } }}
+      // A beat late, so it lands after the "no answer" line it came from has started to fold.
+      transition={{ duration: 0.22, delay: 0.1 }}
     >
-      {/* The separator arrives with the name it introduces. */}
-      {lead ? ',\u00a0' : ''}
-      {memberName(member)}
+      {text}
     </motion.span>
   )
 }

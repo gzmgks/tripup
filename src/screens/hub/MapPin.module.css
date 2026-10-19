@@ -1,10 +1,10 @@
 /*
- * The dashed "?" sits at 465,52 of the 880×375 map export. The layer is a size
- * container, so the pin follows the image however it is scaled: stretched to
- * fill on the device (408×174 ≈ the export's ratio) or covered on phones.
- *   s = rendered px per image px = max(width / 880, height / 375)
- *   x = 50% + (465.4 − 440) · s
- *   y = (height − 375 · s) · focusY + 52.2 · s
+ * A layer in a map image's own coordinates. The layer is a size container, so its
+ * plane follows the image however it is scaled: stretched to fill on the device
+ * (408×174 ≈ the card export's ratio) or covered on phones and in the full map.
+ *   s = rendered px per image px = max(width / map-w, height / map-h)
+ *   the plane is the image at that scale, centred in x, at focusY in y;
+ *   a spot is a point of the image, in percent of the plane.
  */
 .layer {
   position: absolute;
@@ -13,19 +13,37 @@
   pointer-events: none;
 }
 
-.pin {
+.plane {
+  --s: max(100cqw / var(--map-w), 100cqh / var(--map-h));
   position: absolute;
-  left: calc(50% + 25.4 * max(100cqw / 880, 100cqh / 375));
-  top: calc((100cqh - 375 * max(100cqw / 880, 100cqh / 375)) * var(--focus-y) + 52.2 * max(100cqw / 880, 100cqh / 375));
+  left: calc(50% - var(--map-w) * var(--s) / 2);
+  top: calc((100cqh - var(--map-h) * var(--s)) * var(--focus-y));
+  width: calc(var(--map-w) * var(--s));
+  height: calc(var(--map-h) * var(--s));
+}
+
+.spot {
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
   transform: translate(-50%, -50%);
 }
 
-/* The drawn pin; a separate box so it can spring in without losing the centring above. */
+/* The decided dinner over the card's dashed "?" */
+.pin {
+  width: 26px;
+  height: 26px;
+}
+
+/* A separate box so the pin can spring in without losing the centring above. */
+.pop {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* The drawn pin: white, violet ring, ink number (as in the Figma map). */
 .face {
   display: flex;
   align-items: center;
@@ -38,4 +56,16 @@
   font: var(--text-button);
   font-weight: 700;
   color: var(--ink);
+}
+
+/* The open slot: dashed ring, violet "?" */
+.faceOpen {
+  border: 1.5px dashed var(--act);
+  color: var(--act);
+}
+
+/* Drinks, as the export draws it: filled violet */
+.faceFilled {
+  background: var(--act);
+  color: var(--on-act);
 }

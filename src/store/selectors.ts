@@ -24,7 +24,10 @@ export interface MoneyView {
   /** Simplified crew transfers (greedy min-cash-flow). */
   transfers: Transfer[]
   guestDebts: GuestDebt[]
-  /** Pairwise debts before simplifying ("instead of up to N"). */
+  /**
+   * Payments the crew would need without simplifying ("3 payments instead of N"): every
+   * participant owes each expense's payer, netted per pair of crew members across all expenses.
+   */
   transfersBefore: number
   rows: SettleRow[]
   /** What the dinner did to Ari's balance: the group owes her this much for it. */
@@ -77,6 +80,14 @@ export function moneyView(s: ScenarioState): MoneyView {
     totalCount: rows.length,
     allSettled: rows.length > 0 && paidCount === rows.length,
   }
+}
+
+/**
+ * Guest shares still owed to one crew member (Ren → Ari €25 until he pays). They sit outside
+ * the group balance, so at €0 with the group they still need saying.
+ */
+export function guestOwedTo(view: MoneyView, member: MemberId): SettleRow[] {
+  return view.rows.filter((r) => r.guest && r.transfer.to === member && r.status !== 'paid')
 }
 
 /** Rows ordered for display: the logged-in user's own row first (as on screen 08). */

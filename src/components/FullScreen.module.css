@@ -1,0 +1,78 @@
+/* Full-screen view: the Sheet header (Hi-fi 2) on a white page that covers the device. */
+
+.view {
+  outline: none;
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px var(--gutter) 8px;
+  flex-shrink: 0;
+}
+
+.spacer {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.title {
+  flex: 1 0 0;
+  min-width: 1px;
+  text-align: center;
+  font: var(--text-h2);
+  color: var(--ink);
+}
+
+.close {
+  position: relative;
+  display: flex;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  color: var(--ink);
+}
+
+/* 44pt tap area. */
+.close::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px var(--gutter) calc(16px + env(safe-area-inset-bottom, 0px));
+  scrollbar-width: none;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+.bleed {
+  gap: 0;
+  padding: 0;
+}
+
+.footer {
+  flex-shrink: 0;
+  /* Same 28 above the home indicator as a sheet's footer. */
+  padding: 8px var(--gutter) calc(28px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface);
+}

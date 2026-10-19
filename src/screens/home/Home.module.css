@@ -1,7 +1,8 @@
 /*
  * 01 · Home. White page with BG cards, as the hi-fi Plan sheet. The active trip
  * card echoes the violet trip header it opens into (violet = brand and act):
- * same title/subtitle colours, same 3px violet avatar rings.
+ * same title/subtitle colours, same 3px violet avatar rings. Photos make it a
+ * travel app: the city on the active card, a thumbnail on each past trip.
  */
 
 .screen {
@@ -30,12 +31,41 @@
 
 .header {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+.bar {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 52px;
-  padding-top: 8px;
+}
+
+/*
+ * Logo lockup, Figma "logo final" (158:293): mark 206 × 179.447, wordmark 56.475px
+ * on a 60px line, 24px apart, centred. Everything scales from the mark's height.
+ */
+.logo {
+  --logo-h: 54px;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--logo-h) * 24 / 179.447);
+}
+
+.logoMark {
+  display: block;
+  width: calc(var(--logo-h) * 206 / 179.447);
+  height: var(--logo-h);
   flex-shrink: 0;
+}
+
+/* Baloo Tamma 2 Regular, black, as in the lockup */
+.wordmark {
+  font: 400 calc(var(--logo-h) * 56.475 / 179.447) / calc(var(--logo-h) * 60 / 179.447) var(--font-voice);
+  color: var(--pure-black);
 }
 
 .title {
@@ -87,20 +117,37 @@
 .cover {
   position: relative;
   display: block;
-  height: 128px;
+  height: 144px;
   border-radius: 12px;
   overflow: hidden;
   background: var(--surface-muted);
 }
 
+/* Tram 28 on Rua da Prata: centred across, in the lower part of the photo */
 .coverImage {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 20%; /* = COVER_FOCUS_Y in Home.tsx */
+  object-position: 50% 78%;
   pointer-events: none;
+}
+
+/* "Last night in Lisbon": the white pill of the map's "Upcoming" label, on the photo */
+.tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 16px;
+  background: var(--surface);
+  font: var(--text-button);
+  color: var(--ink);
+  white-space: nowrap;
 }
 
 .tripBody {
@@ -148,9 +195,10 @@
 
 .tripFoot {
   display: flex;
+  flex-wrap: wrap; /* a two-line balance drops below the avatars on a narrow phone */
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
   padding: 3px 0 3px 3px; /* room for the 3px rings */
 }
 
@@ -168,8 +216,17 @@
 }
 
 .balance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin-left: auto;
   font: var(--text-body);
   color: var(--surface-muted);
+  text-align: right;
+}
+
+.balanceLine {
   white-space: nowrap;
 }
 
@@ -254,23 +311,33 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   border-radius: 14px;
   background: var(--surface-muted);
   text-align: left;
+  transition: transform var(--dur-fast) ease;
 }
 
-/* Squared up = done: Lime dark check on white */
-.pastBadge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
+.past:active {
+  transform: scale(0.99);
+}
+
+.pastPhoto {
+  display: block;
+  width: 72px;
+  height: 72px;
   flex-shrink: 0;
   border-radius: 12px;
+  overflow: hidden;
   background: var(--surface);
-  color: var(--chosen-on-white);
+}
+
+.pastPhoto img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
 }
 
 .pastText {
@@ -278,6 +345,24 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+}
+
+/* That trip's group: small stacked avatars, a white edge between them */
+.pastCrew {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  padding-left: 2px;
+}
+
+.pastCrew .pastAvatar {
+  margin-right: -5px;
+  background: var(--surface); /* a guest's monogram reads on the grey card */
+  box-shadow: 0 0 0 2px var(--surface-muted);
+}
+
+.pastCrew .pastAvatar:last-child {
+  margin-right: 0;
 }
 
 .pastName {

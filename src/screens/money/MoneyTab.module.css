@@ -80,7 +80,20 @@
 }
 
 .headlineSettled {
+  text-wrap: balance; /* "You’re square / with the group" on a phone, not a lone "group" */
   font: var(--text-h1);
+  color: var(--ink);
+}
+
+.headlineBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* At €0 with the group, the guest's open share right under it ("Ren owes you €25") */
+.guestOwes {
+  font: var(--text-body);
   color: var(--ink);
 }
 
@@ -378,6 +391,14 @@
 .now {
   font: var(--text-body);
   color: var(--ink);
+}
+
+/* "Ren owes you €25" under an "all square" that a guest's open share would otherwise hide */
+.nowGuest {
+  display: block;
+  margin-top: 2px;
+  font: var(--text-caption);
+  color: var(--ink-secondary);
 }
 
 /* ── + Add expense (same as "+ Split out another item", 152:1180) ── */

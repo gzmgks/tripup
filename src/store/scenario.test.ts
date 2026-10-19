@@ -33,7 +33,8 @@ describe('the full scenario', () => {
     expect(hifi.waitingFor).toEqual(['sam', 'ren'])
 
     s = runReady(s, (x) => !!x.poll?.votes.ren)
-    expect(tally(s.poll!).counts).toEqual({ ramiro: 3, taberna: 2, cevicheria: 1 })
+    // Nic moved to Ramiro: a clear win, no tie.
+    expect(tally(s.poll!).counts).toEqual({ ramiro: 4, taberna: 1, cevicheria: 1 })
 
     s = runEvent(s, nextEvent(s)!) // close poll
     expect(s.decided).toBe(true)
@@ -77,8 +78,10 @@ describe('the full scenario', () => {
   })
 
   it('a 3–3 tie waits for the dice instead of closing', () => {
+    // The edge case: Nic doesn't switch (the happy path never ties).
     let s = runReady(sc.startPoll(sc.addGuest(sc.openTrip(sc.freshScenario()))))
-    s = runReady(sc.vote(s, me, 'taberna'))
+    s = sc.vote(s, me, 'taberna')
+    s = runReady({ ...s, done: [...s.done, 'switch-nic', 'switch-theo'] })
     expect(s.pollNotice).toBe('tie')
     expect(s.poll!.status).toBe('open')
     s = sc.decide(s)
@@ -98,5 +101,68 @@ describe('the full scenario', () => {
     let s = runReady(sc.vote(runReady(sc.startPoll(sc.addGuest(sc.openTrip(sc.freshScenario())))), me, 'cevicheria'), (x) => x.decided)
     s = sc.switchSpot(s)
     expect(s.data.plans.find((p) => p.id === 'd5-dinner')!.placeId).toBe('taberna')
+  })
+
+  it('Ramiro wins clearly whatever Ari picks, with or without Ren', () => {
+    for (const withRen of [true, false]) {
+      for (const pick of ['ramiro', 'taberna', 'cevicheria']) {
+        const start = sc.openTrip(sc.freshScenario())
+        let s = sc.startPoll(withRen ? sc.addGuest(start) : start)
+        s = sc.vote(runReady(s), me, pick)
+        s = runReady(s, (x) => x.poll?.status === 'closed')
+        expect(s.poll?.status, `${pick}, Ren ${withRen}`).toBe('closed')
+        expect(s.poll?.winnerId).toBe('ramiro')
+        const t = tally({ ...s.poll!, status: 'open' })
+        expect(t.leaders).toEqual(['ramiro'])
+        expect(s.pollNotice).toBeNull()
+      }
+    }
+  })
+
+  it('the tie stays reachable as an edge case', () => {
+    let s = sc.vote(runReady(sc.startPoll(sc.addGuest(sc.openTrip(sc.freshScenario())))), me, 'taberna')
+    s = runReady({ ...s, done: [...s.done, 'switch-nic', 'switch-theo'] })
+    expect(tally(s.poll!).counts).toEqual({ ramiro: 3, taberna: 3, cevicheria: 0 })
+    expect(s.pollNotice).toBe('tie')
+    expect(s.poll?.status).toBe('open')
+  })
+
+  it('Ideas and Explore places', () => {
+    const place = { id: 'x-test', name: 'Test bar', vibe: 'Bar', price: '€', walkMin: 5, meta: 'Bar · € · 5 min', source: 'Explore' }
+    let s = sc.freshScenario()
+    expect(s.ideas).toHaveLength(7)
+    s = sc.saveIdea(sc.addPlace(s, place), place.id)
+    s = sc.saveIdea(sc.addPlace(s, place), place.id)
+    expect(s.ideas).toHaveLength(8)
+    expect(s.data.places.filter((p) => p.id === 'x-test')).toHaveLength(1)
+  })
+
+  it('scripted votes follow the places in the poll, so it always closes with a clear winner', () => {
+    for (const options of [['taberna', 'cevicheria'], ['ramiro', 'cevicheria'], ['cevicheria', 'timeout'], ['ramiro', 'taberna', 'cevicheria', 'timeout']]) {
+      for (const pick of options) {
+        let s = sc.startPoll(sc.addGuest(sc.openTrip(sc.freshScenario())), options)
+        s = sc.vote(runReady(s), me, pick)
+        s = runReady(s, (x) => x.poll?.status === 'closed')
+        expect(s.poll?.status, `${options.join('/')} · Ari ${pick}`).toBe('closed')
+        expect(tally({ ...s.poll!, status: 'open' }).leaders).toHaveLength(1)
+        expect(s.poll?.winnerId).toBe(options.includes('ramiro') ? 'ramiro' : options[0])
+      }
+    }
+  })
+
+  it('Ren voting from his link for Ari\'s place still ends with a clear winner', () => {
+    for (const renFirst of [true, false]) {
+      let s = sc.vote(runReady(sc.startPoll(sc.addGuest(sc.openTrip(sc.freshScenario())))), me, 'taberna')
+      if (renFirst) s = { ...sc.vote(s, 'ren', 'taberna'), done: [...s.done, 'vote-ren'] }
+      s = runReady(s, (x) => (renFirst ? x.poll?.status === 'closed' : !!x.poll?.votes.sam))
+      if (!renFirst) {
+        // Ren votes last (the guest view): the store's guestVote brings Theo round.
+        s = { ...sc.vote(s, 'ren', 'taberna'), done: [...s.done, 'vote-ren'] }
+        expect(s.pollNotice).toBe('tie')
+        continue
+      }
+      expect(s.poll?.winnerId).toBe('ramiro')
+      expect(tally({ ...s.poll!, status: 'open' }).counts).toEqual({ ramiro: 4, taberna: 2, cevicheria: 0 })
+    }
   })
 })

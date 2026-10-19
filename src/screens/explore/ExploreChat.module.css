@@ -1,0 +1,222 @@
+/* Explore · AI travel agent: the chat. Bubbles use the card radius (14) with one tighter
+   corner towards the speaker; text is Body throughout. */
+
+.chat {
+  width: 100%;
+}
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* The Explore mark (Plan tab action), as the agent's avatar */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-muted);
+}
+
+.avatar img {
+  width: 16px;
+  height: 16px;
+}
+
+.bubbles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* The agent talks in BG, like the cards around it (not violet: violet is for acting) */
+.bubble {
+  max-width: 100%;
+  padding: 10px 14px;
+  border-radius: 4px 14px 14px 14px;
+  background: var(--surface-muted);
+  font: var(--text-body);
+  line-height: 1.4;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.bubble + .bubble {
+  border-top-left-radius: 14px;
+}
+
+/* Ari's answer is the chip she chose: Lime fill, ink text, on the right */
+.mine {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.myBubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--chosen);
+  font: var(--text-body);
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+/* "Or browse": the lists as Add plan-style rows */
+.browse {
+  margin-top: 24px;
+}
+
+.list {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  transition: transform var(--dur-fast) ease;
+}
+
+.list:active {
+  transform: scale(0.99);
+}
+
+.list:focus-visible {
+  border-radius: 14px;
+}
+
+/* Suggestion chips sit under the agent's words, past its avatar */
+.replies {
+  padding-left: 36px;
+}
+
+/* Short answers ("€") still get a 44pt tap target */
+.replies > button {
+  min-width: 44px;
+  justify-content: center;
+}
+
+/* Typing: three dots that breathe (still under reduced motion) */
+.typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 39px;
+}
+
+.typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-hint);
+  animation: breathe 1s var(--ease-out) infinite;
+}
+
+.typing i:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.typing i:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ── Composer (FullScreen footer) ────────────────────────────────── */
+
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Like the Add people name field: BG fill, radius 14, 16px so iOS does not zoom on focus */
+.field {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  font: var(--text-body);
+  font-size: 16px;
+  color: var(--ink);
+  caret-color: var(--act);
+  outline: none;
+  box-shadow: inset 0 0 0 2px transparent;
+  transition: box-shadow var(--dur-fast) ease;
+}
+
+.field::placeholder {
+  color: var(--ink-hint);
+}
+
+.field:focus,
+.field:focus-visible {
+  outline: none;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 2px var(--act);
+}
+
+/* Send: violet once there is something to send (violet = act), BG until then */
+.send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--ink-hint);
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.send[aria-disabled='true'] {
+  cursor: default;
+}
+
+.sendReady {
+  background: var(--act);
+  color: var(--on-act);
+}
+
+.sendReady:active {
+  transform: scale(0.96);
+}
+
+.send:focus-visible {
+  border-radius: 50%;
+}
+
+.sendIcon {
+  transform: rotate(90deg);
+}

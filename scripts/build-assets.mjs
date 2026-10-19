@@ -14,6 +14,8 @@ for (const [name, id] of Object.entries(avatars)) {
 
 // Map card: Figma shows rows 466.8–842.1 of the 880×1916 map export, stretched into a 406×174 card.
 await sharp(join(raw, '741c2.png')).extract({ left: 0, top: 467, width: 880, height: 375 }).webp({ quality: 80 }).toFile(join(out, 'images', 'map-day5.webp'))
+// The whole Day 5 map (Full trip map), with the route and pins 1, 2, ? and 4 as Figma draws them.
+await sharp(join(raw, '741c2.png')).webp({ quality: 80 }).toFile(join(out, 'images', 'map-day5-full.webp'))
 
 // Paper texture for the trip timeline (only used there).
 await sharp(join(raw, '2c9f6.png')).webp({ quality: 55 }).toFile(join(out, 'images', 'paper-texture.webp'))
