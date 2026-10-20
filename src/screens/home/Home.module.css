@@ -45,15 +45,15 @@
 }
 
 /*
- * Logo lockup, Figma "logo final" (158:293): mark 206 × 179.447, wordmark 56.475px
- * on a 60px line, 24px apart, centred. Everything scales from the mark's height.
+ * Logo lockup: the Figma mark (158:294) with the "TripUp" wordmark (158:299, Baloo Tamma 2
+ * Regular, black). Not the Figma lockup's proportions: in a header the mark reads better small
+ * and the wordmark bigger (designer's call, review round 2).
  */
 .logo {
-  /* 40px: level with the 36px avatar beside it, the wordmark at caption size */
-  --logo-h: 40px;
+  --logo-h: 30px;
   display: flex;
   align-items: center;
-  gap: calc(var(--logo-h) * 24 / 179.447);
+  gap: 8px;
 }
 
 .logoMark {
@@ -63,9 +63,8 @@
   flex-shrink: 0;
 }
 
-/* Baloo Tamma 2 Regular, black, as in the lockup */
 .wordmark {
-  font: 400 calc(var(--logo-h) * 56.475 / 179.447) / calc(var(--logo-h) * 60 / 179.447) var(--font-voice);
+  font: 400 22px / 24px var(--font-voice);
   color: var(--pure-black);
 }
 
