@@ -85,7 +85,7 @@ export interface TripState {
   /** The 22 expenses logged before tonight's dinner. */
   expenses: Expense[]
   dinnerBill: DinnerBill
-  /** "Who's having wine?" answers. Ari's is her own; it starts on the default 'in'. */
+  /** "Who's having drinks?" answers. Ari's is her own; it starts on the default 'in'. */
   drinks: Record<MemberId, DrinksAnswer>
   pollScript: PollScript
 }

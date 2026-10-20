@@ -174,13 +174,15 @@ export function FullMapSheet() {
     }
     // Done: what it cost. Still to come: the place ("Loud & seafood · €€ · 12 min"), and "Optional" for drinks.
     const about = plan.status === 'optional' ? [plan.note, place?.meta] : [place?.meta]
+    const done = plan.status === 'done' || !!paid
     return {
       plan,
       mark: n,
-      kind: plan.status === 'optional' ? 'filled' : 'stop',
+      // Done stops are filled; the ones still ahead (dinner once decided, drinks) are outlined.
+      kind: done ? 'filled' : 'stop',
       title: `${lead}${plan.title} · ${plan.time}`,
       detail: paid || about.filter(Boolean).join(' · ') || undefined,
-      done: plan.status === 'done' || !!paid,
+      done,
     }
   }
   const stops = today.filter((p) => DAY5_PINS[p.id]).map(stopOf)

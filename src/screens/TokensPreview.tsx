@@ -23,7 +23,7 @@ const TYPE = [
   { cls: 't-h1', sample: 'Where’s dinner tonight?', meta: 'H1 · Baloo Tamma 2 Bold 28 / 30' },
   { cls: 't-h2', sample: 'Log the bill', meta: 'H2 · Plus Jakarta Sans Bold 20' },
   { cls: 't-h3', sample: 'Lisbon with the crew', meta: 'H3 · Plus Jakarta Sans Bold 16' },
-  { cls: 't-body', sample: 'Pre-selected from tonight’s wine answers', meta: 'Body · Geist Regular 14' },
+  { cls: 't-body', sample: 'Pre-selected from tonight’s drinks answers', meta: 'Body · Geist Regular 14' },
   { cls: 't-caption', sample: 'Day 5 of 5 · Sun 12 Oct', meta: 'Caption · Geist Regular 12' },
   { cls: 't-financial', sample: '€198.00', meta: 'Financial · Geist Regular 18' },
   { cls: 't-button', sample: 'Partially separate', meta: 'Button · Geist SemiBold 12' },

@@ -160,11 +160,12 @@ function TimeSkip() {
 
 function Shortcuts() {
   const state = useApp()
-  const { poll, dinnerExpense, openGuestView, closeDemo } = state
+  const { poll, dinnerExpense, guestInvited, guestAdded, openGuestView, closeDemo } = state
+  const inviteOpen = guestInvited && !guestAdded
   const pollOpen = poll?.status === 'open' && poll.eligible.includes('ren')
   const renOwes = !!dinnerExpense && moneyView(state).rows.some((r) => r.guest && r.transfer.from === 'ren')
 
-  const open = (screen: 'guest-poll' | 'guest-pay') => () => {
+  const open = (screen: 'guest-join' | 'guest-poll' | 'guest-pay') => () => {
     openGuestView(screen)
     closeDemo()
   }
@@ -174,6 +175,9 @@ function Shortcuts() {
       <h3 id="demo-ren" className={styles.blockTitle}>
         Ren’s phone
       </h3>
+      <button type="button" className={styles.secondary} disabled={!inviteOpen} onClick={open('guest-join')}>
+        Open Ren’s invite link
+      </button>
       <div className={styles.pair}>
         <button type="button" className={styles.secondary} disabled={!pollOpen} onClick={open('guest-poll')}>
           Open Ren’s poll link
@@ -182,13 +186,17 @@ function Shortcuts() {
           Open Ren’s pay link
         </button>
       </div>
-      {(!pollOpen || !renOwes) && (
+      {(!inviteOpen || !pollOpen || !renOwes) && (
         <p className={styles.hint}>
-          {!pollOpen && !renOwes
-            ? 'The poll link works while a poll with Ren is open; the pay link once the bill is saved.'
-            : !pollOpen
-              ? 'The poll link works while a poll with Ren is open.'
-              : 'The pay link works once the bill is saved.'}
+          {[
+            !inviteOpen && 'the invite link while Ren is invited and hasn’t joined',
+            !pollOpen && 'the poll link while a poll with Ren is open',
+            !renOwes && 'the pay link once the bill is saved',
+          ]
+            .filter(Boolean)
+            .join('; ')
+            .replace(/^./, (c) => c.toUpperCase())}
+          .
         </p>
       )}
     </section>

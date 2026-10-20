@@ -15,6 +15,7 @@ const HEADER_ORDER: MemberId[] = ['ari', 'nic', 'theo', 'maya', 'sam']
 export function TripHeader() {
   const {
     data,
+    guestInvited,
     guestAdded,
     hubTab,
     setHubTab,
@@ -23,6 +24,7 @@ export function TripHeader() {
   } = useApp(
     useShallow((s) => ({
       data: s.data,
+      guestInvited: s.guestInvited,
       guestAdded: s.guestAdded,
       hubTab: s.hubTab,
       setHubTab: s.setHubTab,
@@ -71,12 +73,18 @@ export function TripHeader() {
             {HEADER_ORDER.map((m) => (
               <Avatar key={m} member={m} size={36} ring="header" className={styles.stacked} />
             ))}
-            {guestAdded && (
+            {guestAdded ? (
               <span className={`${styles.guest} ${styles.stacked}`}>
                 <span className={styles.guestName}>Ren</span>
                 <span>(Guest)</span>
               </span>
-            )}
+            ) : guestInvited ? (
+              // Invited by link, not joined yet: the same pill, dashed, until he opens the link.
+              <span className={`${styles.guest} ${styles.guestInvited} ${styles.stacked}`} aria-label="Ren, invited, waiting to join">
+                <span className={styles.guestName} aria-hidden="true">Ren</span>
+                <span aria-hidden="true">(Invited)</span>
+              </span>
+            ) : null}
             <button type="button" className={styles.add} aria-label="Add people" onClick={() => openSheet('add-people')}>
               <span className={styles.addIcon}>
                 <Icon name="plus" size={12} />

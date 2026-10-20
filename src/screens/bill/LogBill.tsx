@@ -144,19 +144,20 @@ export function LogBill() {
                     transition={reduce ? { duration: 0 } : { duration: 0.28, ease: EASE }}
                   >
                     <div className={styles.wine}>
-                      <p className={styles.hint}>Pre-selected from tonight’s wine answers</p>
+                      <p className={styles.hint}>Pre-selected from tonight’s drinks answers</p>
                       <div className={styles.group8}>
                         <div className={styles.wineHead}>
                           <div className={styles.row}>
                             <span className={styles.wineLabel}>{d.wine.label}</span>
                             <span className={styles.wineAmount}>{formatEUR(d.wine.amountCents)}</span>
                           </div>
-                          <p className={styles.caption}>Split out from the total · pre-filled from “Who's having wine?”</p>
+                          <p className={styles.caption}>Split out from the total · pre-filled from “Who's having drinks?”</p>
                         </div>
 
                         <div className={styles.tiles}>
                           <div className={styles.crewTiles}>
-                            {crewTiles.map((m) => (
+                            {/* A guest whose answer is set (his own, or Ari's ✓/✕) is a tile like everyone else's. */}
+                            {[...crewTiles, ...guests.filter((m) => bill.wine[m] !== 'pending')].map((m) => (
                               <CrewTile
                                 key={m}
                                 member={m}
@@ -165,9 +166,11 @@ export function LogBill() {
                               />
                             ))}
                           </div>
-                          {guests.map((m) => (
-                            <GuestTile key={m} choice={bill.wine[m]} onChoose={(c) => chooseWine(m, c)} />
-                          ))}
+                          {guests
+                            .filter((m) => bill.wine[m] === 'pending')
+                            .map((m) => (
+                              <GuestTile key={m} choice={bill.wine[m]} onChoose={(c) => chooseWine(m, c)} />
+                            ))}
                         </div>
 
                         <p className={styles.summary} aria-live="polite" aria-atomic="true">
@@ -301,7 +304,7 @@ function CrewTile({ member, choice, onToggle }: { member: MemberId; choice: Wine
   )
 }
 
-/** Ren never answered "Who's having wine?": counted in until Ari says otherwise (violet = waiting on you). */
+/** Ren hasn't answered "Who's having drinks?": counted in until he or Ari decides (violet = waiting on you); then he's a plain tile. */
 function GuestTile({ choice, onChoose }: { choice: WineChoice; onChoose: (c: WineChoice) => void }) {
   const state = choice === 'pending' ? 'waiting' : choice === 'in' ? 'in' : 'off'
   return (

@@ -165,4 +165,22 @@ describe('the full scenario', () => {
       expect(tally({ ...s.poll!, status: 'open' }).counts).toEqual({ ramiro: 4, taberna: 2, cevicheria: 0 })
     }
   })
+
+  it('Ren is invited first, then joins from the link (and the scripted join plays)', () => {
+    let s = sc.inviteGuest(sc.openTrip(sc.freshScenario()))
+    expect(s.guestInvited).toBe(true)
+    expect(s.guestAdded).toBe(false)
+    expect(sc.billAttendees(s)).not.toContain('ren')
+    // Invited while a poll is live: he isn't counted until he joins.
+    s = sc.startPoll(s)
+    expect(s.poll!.eligible).toHaveLength(5)
+    s = runReady(s, (x) => x.screen === 'guest-join')
+    expect(s.screen).toBe('guest-join')
+    s = runReady(s, (x) => x.guestAdded)
+    expect(s.guestAdded).toBe(true)
+    expect(s.poll!.eligible).toHaveLength(6)
+    s = runReady(s, (x) => x.screen === 'hub')
+    expect(s.screen).toBe('hub')
+    expect(s.done).toEqual(expect.arrayContaining(['ren-opens-link', 'ren-joins', 'ren-back']))
+  })
 })

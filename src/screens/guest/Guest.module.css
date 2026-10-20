@@ -300,3 +300,39 @@
   font: var(--text-body);
   color: var(--ink-secondary);
 }
+
+/* ── G0 · join ───────────────────────────────────────────── */
+
+.joinForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Name field, as on Add people: BG fill, radius 14, 16px so iOS does not zoom on focus */
+.field {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-muted);
+  font: var(--text-body);
+  font-size: 16px;
+  color: var(--ink);
+  caret-color: var(--act);
+  outline: none;
+  box-shadow: inset 0 0 0 2px transparent;
+  transition: box-shadow var(--dur-fast) ease;
+}
+
+.field::placeholder {
+  color: var(--ink-hint);
+}
+
+.field:focus,
+.field:focus-visible {
+  outline: none;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 2px var(--act);
+}

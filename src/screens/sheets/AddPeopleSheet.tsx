@@ -27,6 +27,7 @@ function planLabel(plan: Plan): string {
 /** 03 · Add people: Ren joins by link, as a guest for the plans Ari ticks. */
 export function AddPeopleSheet() {
   const data = useApp((s) => s.data)
+  const guestInvited = useApp((s) => s.guestInvited)
   const guestAdded = useApp((s) => s.guestAdded)
   const initialPlans = useApp((s) => s.guestPlanIds)
   const closeSheet = useApp((s) => s.closeSheet)
@@ -44,20 +45,25 @@ export function AddPeopleSheet() {
     setPlanIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : upcoming.map((p) => p.id).filter((x) => ids.includes(x) || x === id)))
 
   const canAdd = name.trim().length > 0 && (joinAs === 'member' || planIds.length > 0)
-  const confirm = () => {
-    if (joinAs === 'member') {
-      showToast('Not part of this demo: Ren joins as a guest')
-      return
-    }
-    addGuest(planIds)
-  }
-
-  const copyLink = () => {
+  const putLinkOnClipboard = () => {
     try {
       void navigator.clipboard?.writeText(`https://${GUEST_LINK}`).catch(() => undefined)
     } catch {
       // Clipboard can be blocked (insecure origin, permissions): the toast still confirms.
     }
+  }
+  const confirm = () => {
+    if (joinAs === 'member') {
+      showToast('Not part of this demo: Ren joins as a guest')
+      return
+    }
+    // "Add Ren & share link": the invite goes out with the link on the clipboard.
+    if (!guestInvited) putLinkOnClipboard()
+    addGuest(planIds)
+  }
+
+  const copyLink = () => {
+    putLinkOnClipboard()
     showToast(`✓ Link copied · ${GUEST_LINK}`)
   }
 
@@ -68,7 +74,7 @@ export function AddPeopleSheet() {
       footer={
         <>
           <Button onClick={confirm} disabled={!canAdd}>
-            {guestAdded ? 'Save Ren’s plans' : 'Add Ren & share link'}
+            {guestInvited ? 'Save Ren’s plans' : 'Add Ren & share link'}
           </Button>
           <div className={styles.share}>
             <ActChip onClick={() => setQr((v) => !v)} expanded={qr}>
@@ -99,7 +105,9 @@ export function AddPeopleSheet() {
               </motion.div>
             )}
           </AnimatePresence>
-          <p className={`${shared.note} ${styles.footnote}`}>Ren joins in any browser. No app or account needed.</p>
+          <p className={`${shared.note} ${styles.footnote}`}>
+            {guestAdded ? 'Ren has joined from the link.' : guestInvited ? 'Invited · waiting for Ren to open the link.' : 'Ren joins in any browser. No app or account needed.'}
+          </p>
         </>
       }
     >

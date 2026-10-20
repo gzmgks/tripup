@@ -87,6 +87,18 @@
   font-weight: 700;
 }
 
+/* Waiting to join: the ring is dashed and the name sits back, until Ren opens the link */
+.guestInvited {
+  box-shadow: none;
+  outline: 2px dashed var(--act);
+  outline-offset: 1px;
+  color: var(--ink-secondary);
+}
+
+.guestInvited .guestName {
+  color: var(--ink);
+}
+
 .add {
   position: relative;
   display: flex;

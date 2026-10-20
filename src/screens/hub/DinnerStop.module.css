@@ -176,7 +176,7 @@
   color: var(--ink-secondary);
 }
 
-/* "Who's having wine?" (the wine at dinner, not the 23:30 drinks) */
+/* "Who's having drinks?" (the wine at dinner; the 23:30 plan is "Drinks in Bairro Alto") */
 .drinks {
   display: flex;
   flex-direction: column;
@@ -199,10 +199,24 @@
   color: var(--ink-secondary);
 }
 
-.nudge {
+/* Ren invited, not joined yet: his monogram and a caption, nothing to act on here (header "+ Add" does that) */
+.invited {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font: var(--text-caption);
   line-height: 1.3;
-  color: var(--act);
+  color: var(--ink-secondary);
+}
+
+.invited .invitedAvatar {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.invitedName {
+  font: var(--text-button);
+  color: var(--ink);
 }
 
 .answers {

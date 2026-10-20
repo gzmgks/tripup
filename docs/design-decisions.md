@@ -11,7 +11,8 @@ All originals are in the **Originals** frame, which now sits in the "Working fil
 - **Review round 1 (text only, so the hi-fi screens and the prototype still match):**
   - Hi-fi 1 map chip: "Upcoming > Dinner 20:30 (not decided)" → "Next · Dinner 20:30 · not decided".
   - Hi-fi 2 wine caption: "pre-filled from “Who's in for drinks?”" → "pre-filled from “Who's having wine?”".
-  - Hi-fi 2 hint: "Pre-selected from tonight’s drinks answers" → "Pre-selected from tonight’s wine answers" (same rename, so nothing on screen says "drinks" for the wine).
+  - Hi-fi 2 hint: "Pre-selected from tonight’s drinks answers" → "Pre-selected from tonight’s wine answers".
+  - **Review round 2 (Gizem's own Figma edits, matched here):** the question is "Who's having drinks?" and the hint is back to "tonight’s drinks answers"; the bill item stays "Wine".
   - Reference device on the Cover and in the Wireflow legend: "iPhone 15 · 393×852" → "iPhone 17 Pro Max · 440×956".
   - The old texts are in the "before" copies in Originals (a copy of the Wireflow legend was added), and the change list there logs them.
 
@@ -41,7 +42,7 @@ All originals are in the **Originals** frame, which now sits in the "Working fil
 - **App icon:** the mark on white for the favicon, the home-screen icon and the web manifest.
 
 ## 02 · 05 · 06 Plan tab
-- **Open slot:** a white card with a dashed Grey 2 border and a dashed violet "?" badge, plus a violet "Decide" pill and a "Pick a place" chip.
+- **Open slot:** a white card with a dashed Grey 2 border and a dashed violet "?" badge, plus a violet "Decide" pill and a "Pick a place" chip. People are added only from the header "+ Add" (review round 2 removed the card's "+ Add Ren" and its hint); while Ren is invited and hasn't joined, the card carries a quiet "R Ren · Invited · waiting to join" line.
 - **Map:** the chip reads "Next · Dinner 20:30 · not decided" (Hi-fi 1, synced in Figma). Once dinner is decided, a numbered "3" pin covers the dashed "?", and the chip changes to "Next · Dinner at Cervejaria Ramiro · 20:30"; after 22:30 it's "Next · Drinks in Bairro Alto · 23:30".
 - **Day 1–4 tabs:** each opens a read-only past day on the same paper timeline: the day's stops from the ledger, each with ✓ and its expense line ("Castelo de São Jorge · Tickets · €75 · paid by Nic"), and "6 stops · €711.70 spent" by the date. The selected day is Lime; a demo jump returns to today.
 - **Live poll:**
@@ -51,8 +52,8 @@ All originals are in the **Originals** frame, which now sits in the "Working fil
 - **Poll callouts:** the 4th place and tie callouts are grey cards under the options. "Keep my vote" is white, "See options" violet, and "🎲 Spin the dice" violet.
 - **Decided stop:**
   - Chips: grey for facts (walk time, "Picked by 4 of 6" / "Picked by chance" / "Picked by Maya", "Picked by you"), violet for actions (Directions, Switch spot). Switch spot only shows when the decision had votes (a direct pick has no runner-up).
-  - "Who's having wine?" (renamed from "Who's in for drinks?", so it can't be read as the 23:30 bar): "It's split among the people who are in. No answer counts as in." Ari's answer turns Lime with a ✓; unanswered buttons are violet (waiting on you). Under "In", anyone who hasn't answered is listed on their own line, e.g. "R Ren · no answer, counted in", until they opt out. Names fade in place, never slide over each other.
-- **Getting to 22:30:** the evening moves on by itself about 5s after the wine answers are in. A quiet line under the card, "Dinner ends at 22:30 · Skip ahead" (only "Skip ahead" violet), skips there; Demo controls have "Skip to 22:30" too.
+  - "Who's having drinks?" (review round 2; round 1 had "wine"): "It's split among the people who are in. No answer counts as in." Ari's answer turns Lime with a ✓; unanswered buttons are violet (waiting on you). Under "In", anyone who hasn't answered is listed on their own line, e.g. "R Ren · no answer, counted in", until they opt out. Names fade in place, never slide over each other.
+- **Getting to 22:30:** the evening moves on by itself about 5s after the drinks answers are in. A quiet line under the card, "Dinner ends at 22:30 · Skip ahead" (only "Skip ahead" violet), skips there; Demo controls have "Skip to 22:30" too.
 - **After 22:30:** the stop shows "Log the bill". Once the bill is saved, it shows "Dinner · €198 · paid by you" with a ✓, like the other finished stops.
 - **23:30 Drinks in Bairro Alto:** no ✓, because it hasn't happened yet.
 
@@ -71,13 +72,14 @@ All originals are in the **Originals** frame, which now sits in the "Working fil
 - **Chance:** a short spin through the places that lands on a Lime card, then the dinner is decided.
 - **Someone picks:** choosing a person doesn't decide straight away. "Let Maya pick" in the footer confirms it, and the stop then says "Picked by Maya".
 - **Add plan** (02 callout): "Pick a place" opens Explore on Food, "Ask AI for ideas" opens the agent ("A short chat: what, where, when, budget").
-- **Full trip map** (02 callout, now full screen): the Figma map edge to edge with today's stops on the route as drawn, 1 Belém Tower and 2 LX Factory (✓, with what they cost), "?" for the open dinner and 4 Drinks. The next stop's card is open by default: "Next · Dinner 20:30 · place not decided" with Decide; "poll live, 4 of 6 voted" with See the poll (focus moves to the poll); once decided the pin becomes 3. The group's Ideas are ★ pins, shown or hidden with "Ideas · 7". On a wide, short screen (landscape) the map keeps today's stops in view.
+- **Full trip map** (02 callout, now full screen): the Figma map edge to edge with today's stops on the route as drawn, 1 Belém Tower and 2 LX Factory (✓, with what they cost), "?" for the open dinner and 4 Drinks. Done stops are filled violet, the ones still ahead are outlined (review round 2). The next stop's card is open by default: "Next · Dinner 20:30 · place not decided" with Decide; "poll live, 4 of 6 voted" with See the poll (focus moves to the poll); once decided the pin becomes 3. The group's Ideas are ★ pins, shown or hidden with "Ideas · 7". On a wide, short screen (landscape) the map keeps today's stops in view.
 - **Explore** (02 callout, now full screen and trip-wide): three tabs (Ask AI, Lists, Your Ideas · N).
   - The AI travel agent asks what, where, when and budget, one chip question at a time, and answers with up to three real Lisbon places, a line about tonight's plan, and "Start over". When it relaxes the search, it says so. It never invents ratings, prices or opening hours. Ari's bubbles are Lime (her choices), the agent's are BG.
   - Curated lists: Top 10 in Lisbon, Food, Nightlife, Hidden gems. Places the group already visited say so ("Been here · Day 2").
   - Every place has "+ Add": Add to Ideas, tonight's 20:30 dinner, tonight's 23:30 drinks (bars), or tonight's dinner poll (no poll yet → Decide opens with that place as an option). Each row says where it stands before you tap, and a slot that's taken says why.
 
 ## 07 Log the bill
+- **Ren's tile (review round 2):** the two-button pill ("Ren · waiting", ✓ / ✕) is only his pending state. Once his answer is set (he answers, or Ari taps ✓ or ✕) he is a tile like everyone else's: R monogram with a single ✓ or ✕ that toggles.
 - **Ren's monogram on his wine pill (review round 1, kept):** his "R" sits in the "Ren · waiting" pill, the way "Paid by" puts an avatar in its pill, so he is a monogram everywhere. Gizem adds it to Hi-fi 2 in Figma herself; until then it is the only visual difference from the frame (about 200 px in the pixel comparison).
 - **Ren's tile, once Ari answers for him:** the pill reads "in" or "off" and its ring turns Lime dark or grey. The picked button gets a ring and the other one greys out.
 - **Tip:** "No tip added +" adds a 10% tip on top of the €198, split in proportion to each share. The pill then reads "Tip €19.80 · split by share" with an × to remove it.
@@ -97,8 +99,9 @@ All originals are in the **Originals** frame, which now sits in the "Working fil
   - Failed is the only red: "Payment didn't go through", with "Try again" and "Pay another way".
 - **Squared up:** the one warm moment on the settle side. A Lime circle with an ink ✓ and a soft halo, the six avatars with "all ✓", a summary card ("5 days · 23 expenses · 4 payments (incl. Ren) to close it all"), and "Share a trip recap" / "Plan the next trip". "Plan the next trip" goes back to My trips, where Lisbon is now a past trip; restarting the demo is only in Demo controls.
 
-## Ren's phone (G1, G2) and notifications
-- **Ren's pages:** look like the mobile web, with an address bar (tripup.app/p/lisbon-dinner, tripup.app/pay/lisbon-dinner) and a "Back to Ari's phone" pill drawn like the toast (white, hairline, soft shadow). Ren never has a photo (he joined by link, without the app): he is an "R" monogram everywhere, in the poll, the wine list, the bill and the money tab.
+## Ren's phone (G0, G1, G2) and notifications
+- **How Ren joins (review round 2):** Ari invites him from the header "+ Add" (guest for tonight's dinner; "Add Ren & share link" puts the link on the clipboard, with Copy link / WhatsApp / QR beside it). He is "Invited · waiting to join" (a dashed "Ren (Invited)" pill in the header, a line on the dinner card) and can't vote yet. On his phone (G0, mobile web, no app or account) the link shows "Ari invited you to tonight's dinner"; he enters his name and taps Join. Back on Ari's phone a toast says "✓ Ren joined" and he is a guest member with the R monogram. With the group on autopilot this plays by itself: his phone shows 2.2s after the invite, his name types in, Join lands 2.4s later, and Ari's phone is back after 1.5s. Demo controls can open the invite link too.
+- **Ren's pages:** look like the mobile web, with an address bar (tripup.app/p/lisbon-dinner for the invite and the poll, tripup.app/pay/lisbon-dinner) and a "Back to Ari's phone" pill drawn like the toast (white, hairline, soft shadow). Ren never has a photo (he joined by link, without the app): he is an "R" monogram everywhere, in the poll, the wine list, the bill and the money tab.
 - **The group's notification:** Ari can't get the push for her own poll, so after "Send to group" the Figma push appears with a white "What the group got" label, drawn like the toast. On Ari's phone, its quick-vote chips explain that friends vote from their lock screen.
 - **22:30 "Who paid at Cervejaria Ramiro?":** the same notification card, with a violet "Log the bill".
 
@@ -120,7 +123,7 @@ All originals are in the **Originals** frame, which now sits in the "Working fil
   - "Everyone's balance", "See all (23)"
   - "Approve in your bank app", "Sending €20.00 to Maya…", "Mark as paid", "Pay €20.00", "Done"
 - **Ren's pages:** "Back to Ari's phone", "You're in! We'll tell you where.", "You're all set. Thanks for joining!"; the "What the group got" label.
-- **Toasts:** "✓ Ren is in for tonight's dinner", "✓ Ren's plans are saved", "✓ {place} added to tonight's plan", "✓ Switched to {place} · the group is notified", "✓ Link copied · tripup.app/p/lisbon-dinner", "✓ {place} saved to Ideas", "✓ {place} added to tonight's poll", "Porto is squared up · nothing left to settle", "Not part of this demo" (only Profile, Plan with AI and Start from scratch).
+- **Toasts:** "✓ Ren invited for tonight's dinner · link copied", "✓ Ren joined", "✓ Ren's plans are saved", "✓ {place} added to tonight's plan", "✓ Switched to {place} · the group is notified", "✓ Link copied · tripup.app/p/lisbon-dinner", "✓ {place} saved to Ideas", "✓ {place} added to tonight's poll", "Porto is squared up · nothing left to settle", "Not part of this demo" (only Profile, Plan with AI and Start from scratch).
 
 ## Motion and timing (stage 4)
 - **Autopilot:** the group's actions run on fixed timers (`src/store/autopilot.ts`), so the demo plays the same way every time.
@@ -165,7 +168,7 @@ All originals are in the **Originals** frame, which now sits in the "Working fil
 | Timeline times, "Optional" | #737378 on BG / paper | 3.9–4.2 |
 | Lime-dark ✓ icons | on white / BG | 2.4 / 2.1 (always paired with text or a spoken state) |
 
-**Mixed apostrophes:** some Figma strings use a straight apostrophe (Tonight's guest, Who's having wine?, It's a tie!) and new copy uses ’. One choice for both would be cleaner.
+**Mixed apostrophes:** some Figma strings use a straight apostrophe (Tonight's guest, Who's having drinks?, It's a tie!) and new copy uses ’. One choice for both would be cleaner.
 
 ## Phones (stage 5)
 - **Opening the demo controls:** long-press anywhere in the top 64pt of the screen (status bar or header). A quick tap there still works as normal, and the release after a long press can't close the panel by accident.
@@ -185,7 +188,7 @@ All originals are in the **Originals** frame, which now sits in the "Working fil
 New copy is in quotes.
 - **Add Ren first:** until Ren is added, the open 20:30 slot says "Ren joins you for this dinner: add him first, so he can vote too." Its first button is a violet "+ Add Ren", and Decide becomes a chip. The Decide sheet repeats the prompt with its own "+ Add Ren". If Ren is added while the poll is live, he still gets a vote.
 - **Vote hint:** "Tap a place to vote" (violet, because it's waiting on you) shows on the live poll until Ari has voted. It's never visible in Hi-fi 1, where she already has.
-- **Wine question:** (superseded in review round 1: renamed "Who's having wine?", see the Plan tab.)
+- **Drinks question:** (superseded: "Who's having drinks?" since review round 2, see the Plan tab.)
 - **Everyone's balance:** opens by itself once the bill is saved, so each person's updated balance is visible (the brief's "each person's total trip balance"). It can still be collapsed.
 - **Log the bill:**
   - With a tip, Total shows the bill plus the tip.

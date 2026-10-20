@@ -8,6 +8,10 @@ import type { ScenarioState } from './scenario'
 
 /** Delay (ms) after an event becomes possible before it runs. */
 export const EVENT_DELAY: Record<string, number> = {
+  // 03 → G0: the invite is out; Ren's phone shows, he types his name, taps Join, and Ari's phone is back.
+  'ren-opens-link': 2200,
+  'ren-joins': 2400,
+  'ren-back': 1500,
   // 05: the push banner shows first (~2.4s), then votes land one by one.
   'vote-maya': 3000,
   'vote-theo': 1300,
@@ -18,7 +22,7 @@ export const EVENT_DELAY: Record<string, number> = {
   'vote-ren': 1400,
   // "6 of 6 voted · closing…" before the winner lands.
   'close-poll': 1900,
-  // 06: wine answers trickle in after the winner has landed.
+  // 06: drinks answers trickle in after the winner has landed.
   'drinks-maya': 1800,
   'drinks-theo': 900,
   'drinks-sam': 900,
@@ -37,6 +41,8 @@ export const EVENT_DELAY: Record<string, number> = {
 function holds(e: ScriptEvent, s: ScenarioState & { demoOpen: boolean }): boolean {
   if (s.demoOpen) return true
   if (s.screen === 'guest-poll' || s.screen === 'guest-pay') return true
+  // Ren's join page plays its own two moments; nothing else happens while it shows.
+  if (s.screen === 'guest-join') return e.id !== 'ren-joins' && e.id !== 'ren-back'
   // Payments tick in on the Money tab, so wait until the Pay sheet is closed.
   if (e.id.startsWith('pay-') || e.id === 'squared-up') return s.sheet !== null
   // The evening only moves on from the Plan tab, with nothing on top of it.

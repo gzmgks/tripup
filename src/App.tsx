@@ -2,6 +2,7 @@ import { AnimatePresence, MotionConfig } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { focusLanding } from './components/focus'
 import { LogBill } from './screens/bill/LogBill'
+import { GuestJoin } from './screens/guest/GuestJoin'
 import { GuestPay } from './screens/guest/GuestPay'
 import { GuestPoll } from './screens/guest/GuestPoll'
 import { Home } from './screens/home/Home'
@@ -64,6 +65,7 @@ export default function App() {
         {screen === 'hub' && <TripHub />}
         {screen === 'bill' && <LogBill />}
         {screen === 'squared' && <SquaredUp />}
+        {screen === 'guest-join' && <GuestJoin />}
         {screen === 'guest-poll' && <GuestPoll />}
         {screen === 'guest-pay' && <GuestPay />}
         {screen === 'preview-tokens' && <TokensPreview tone="violet" />}

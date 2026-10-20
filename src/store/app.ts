@@ -90,7 +90,8 @@ interface AppState extends ScenarioState {
   showSquaredUp: () => void
 
   // G1 · G2: Ren's phone (mobile web, no app)
-  openGuestView: (screen: 'guest-poll' | 'guest-pay') => void
+  openGuestView: (screen: 'guest-join' | 'guest-poll' | 'guest-pay') => void
+  guestJoin: () => void
   leaveGuestView: () => void
   guestVote: (optionId: string) => void
   guestPay: () => void
@@ -106,6 +107,7 @@ interface AppState extends ScenarioState {
 const me = 'ari'
 const S = sc.freshScenario
 const hub = () => sc.openTrip(S())
+const invited = () => sc.inviteGuest(hub())
 const guest = () => sc.addGuest(hub())
 const pollSent = () => sc.startPoll(guest())
 const hifi1 = () => ({ ...sc.vote(runReady(pollSent()), me, 'cevicheria'), banner: null })
@@ -146,6 +148,8 @@ export const DEMO_STEPS: DemoStep[] = [
   { id: 'home', label: '01 · Home: my trips', build: S },
   { id: 'hub', label: '02 · Trip hub, dinner not decided', build: hub },
   { id: 'add-people', label: '03 · Add people', build: () => ({ ...hub(), sheet: 'add-people' }) },
+  { id: 'invited', label: '03B · Ren invited, waiting to join', build: invited },
+  { id: 'guest-join', label: 'G0 · Ren joins from the link', build: () => ({ ...invited(), screen: 'guest-join', guestReturn: 'hub' }) },
   { id: 'decide', label: '04 · How should we decide?', build: () => ({ ...guest(), sheet: 'decide' }) },
   { id: 'poll-sent', label: '05 · Poll sent to the group', build: pollSent },
   { id: 'hifi-1', label: '05 · Live poll, 4 of 6 (Hi-fi 1)', build: hifi1 },
@@ -241,13 +245,15 @@ export const useApp = create<AppState>((set, get) => {
     fillDrinks: (place) => apply((s) => sc.fillDrinks(sc.addPlace(s, place), place.id)),
 
     addGuest: (planIds) => {
-      const editing = get().guestAdded
-      apply((s) => sc.addGuest(s, planIds))
+      const editing = get().guestInvited
+      apply((s) => sc.inviteGuest(s, planIds))
       const titles = get()
         .data.plans.filter((p) => planIds.includes(p.id))
         .map((p) => (p.id === 'd5-dinner' ? 'tonight’s dinner' : p.title.charAt(0).toLowerCase() + p.title.slice(1)))
-      get().showToast(editing ? '✓ Ren’s plans are saved' : `✓ Ren is in for ${titles.join(' and ') || 'tonight’s dinner'}`)
+      get().showToast(editing ? '✓ Ren’s plans are saved' : `✓ Ren invited for ${titles.join(' and ') || 'tonight’s dinner'} · link copied`)
     },
+    // Ren's phone (G0): Join, then back to Ari's, where "Ren joined" shows once.
+    guestJoin: () => apply((s) => ({ ...sc.joinGuest(s), done: s.done.includes('ren-joins') ? s.done : [...s.done, 'ren-joins'] })),
     setDecideMode: (decideMode) => set({ decideMode }),
     startPoll: (optionIds, closesAt) => {
       apply((s) => sc.startPoll(s, optionIds, closesAt))
@@ -326,7 +332,12 @@ export const useApp = create<AppState>((set, get) => {
     closeBill: () => set({ screen: 'hub', hubTab: 'plan' }),
 
     openGuestView: (screen) => set((s) => ({ screen, sheet: null, banner: null, guestReturn: s.screen.startsWith('guest') ? s.guestReturn : s.screen })),
-    leaveGuestView: () => set((s) => ({ screen: s.guestReturn })),
+    leaveGuestView: () => {
+      const s = get()
+      const joinedNow = s.screen === 'guest-join' && s.guestAdded && !s.done.includes('ren-back')
+      set({ screen: s.guestReturn, done: joinedNow ? [...s.done, 'ren-back'] : s.done })
+      if (joinedNow) get().showToast('✓ Ren joined')
+    },
     guestVote: (optionId) =>
       apply((s) => {
         let next = { ...sc.vote(s, 'ren', optionId), done: s.done.includes('vote-ren') ? s.done : [...s.done, 'vote-ren'] }
@@ -349,6 +360,7 @@ export const useApp = create<AppState>((set, get) => {
       const e = nextEvent(get())
       if (!e) return
       apply((s) => runEvent(s, e))
+      if (e.id === 'ren-back') get().showToast('✓ Ren joined')
       if (e.id === 'close-poll') {
         const place = get().data.places.find((p) => p.id === get().poll?.winnerId)
         if (place) get().showToast(`✓ ${place.name} added to tonight’s plan`)

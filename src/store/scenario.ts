@@ -9,7 +9,7 @@ import type { BillDraft } from '../domain/money'
 import { addOption, castVote, closePoll, shouldClose, tally } from '../domain/poll'
 import type { ClockTime, DrinksAnswer, Expense, MemberId, Place, Poll, Transfer } from '../domain/types'
 
-export type ScreenId = 'home' | 'hub' | 'bill' | 'squared' | 'guest-poll' | 'guest-pay' | 'preview-tokens' | 'preview-light'
+export type ScreenId = 'home' | 'hub' | 'bill' | 'squared' | 'guest-join' | 'guest-poll' | 'guest-pay' | 'preview-tokens' | 'preview-light'
 export type HubTab = 'plan' | 'money'
 export type SheetId = 'add-people' | 'decide' | 'pay' | 'suggest' | 'add-plan' | 'explore' | 'full-map'
 
@@ -63,7 +63,9 @@ export interface ScenarioState {
   data: TripState
   /** Story clock (not the static status bar). */
   clock: ClockTime
-  /** Ren has been added as a guest (03), and for which plans. */
+  /** Ren has been invited by link (03): "Invited · waiting to join" until he joins. */
+  guestInvited: boolean
+  /** Ren has joined from the link: a guest member who can vote (03 → G0). */
   guestAdded: boolean
   guestPlanIds: string[]
   decideMode: DecideMode
@@ -103,6 +105,7 @@ export function freshScenario(): ScenarioState {
     sheet: null,
     data,
     clock: '18:40',
+    guestInvited: false,
     guestAdded: false,
     guestPlanIds: [DINNER_PLAN_ID],
     decideMode: 'vote',
@@ -155,9 +158,30 @@ export const saveIdea = (s: ScenarioState, placeId: string): ScenarioState =>
 
 // ── 03 · Add people ────────────────────────────────────────────────────
 
-export function addGuest(s: ScenarioState, planIds: string[] = [DINNER_PLAN_ID]): ScenarioState {
+/**
+ * Ari invites Ren from the header "+ Add": he is "Invited · waiting to join" for the plans she
+ * ticked, until he opens the link (joinGuest). Already joined: this just saves his plans.
+ */
+export function inviteGuest(s: ScenarioState, planIds: string[] = [DINNER_PLAN_ID]): ScenarioState {
   const ids = planIds.length ? planIds : [DINNER_PLAN_ID]
-  // Added while the dinner poll is live: he gets a vote too. Moved off the dinner: he loses it,
+  const next: ScenarioState = {
+    ...s,
+    guestInvited: true,
+    guestPlanIds: ids,
+    sheet: null,
+    data: {
+      ...s.data,
+      members: s.data.members.map((m) => (m.id === 'ren' ? { ...m, planIds: ids } : m)),
+    },
+  }
+  return s.guestAdded ? joinGuest(next) : next
+}
+
+/** Ren opens the link, enters his name and taps Join: a guest member who can vote (G0 → 03). */
+export function joinGuest(s: ScenarioState): ScenarioState {
+  if (!s.guestInvited) return s
+  const ids = s.guestPlanIds
+  // Joined while the dinner poll is live: he gets a vote too. Moved off the dinner: he loses it,
   // so the poll doesn't wait for him.
   let poll = s.poll
   if (poll && poll.status === 'open') {
@@ -173,20 +197,18 @@ export function addGuest(s: ScenarioState, planIds: string[] = [DINNER_PLAN_ID])
   // The tie callout follows the new count (same rule as vote()).
   const t = poll && poll.status === 'open' ? tally(poll) : null
   const pollNotice = t && s.pollNotice === 'tie' && !(t.waitingFor.length === 0 && t.leaders.length > 1) ? null : s.pollNotice
-  return {
-    ...s,
-    poll,
-    done,
-    pollNotice,
-    guestAdded: true,
-    guestPlanIds: ids,
-    sheet: null,
-    data: {
-      ...s.data,
-      members: s.data.members.map((m) => (m.id === 'ren' ? { ...m, planIds: ids } : m)),
-    },
-  }
+  return { ...s, poll, done, pollNotice, guestAdded: true }
 }
+
+/** Invite and join in one go (demo jump points and tests). */
+export const addGuest = (s: ScenarioState, planIds: string[] = [DINNER_PLAN_ID]): ScenarioState => joinGuest(inviteGuest(s, planIds))
+
+/** Ren's phone: he opened the invite link (G0). */
+export const openGuestJoin = (s: ScenarioState): ScenarioState =>
+  s.guestInvited && !s.guestAdded ? { ...s, screen: 'guest-join', sheet: null, banner: null, guestReturn: s.screen.startsWith('guest') ? s.guestReturn : s.screen } : s
+
+/** Back to Ari's phone after Ren joined. */
+export const backFromGuestJoin = (s: ScenarioState): ScenarioState => (s.screen === 'guest-join' ? { ...s, screen: s.guestReturn } : s)
 
 // ── 04 · Decide → 05 · Live poll ────────────────────────────────────────
 

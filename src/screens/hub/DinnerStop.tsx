@@ -6,7 +6,7 @@ import { Button } from '../../components/Button'
 import { Icon } from '../../components/Icon'
 import { memberName } from '../../components/names'
 import { Announce } from '../../components/Announce'
-import { DINNER_END_TIME } from '../../data/seed'
+import { DINNER_END_TIME, DINNER_PLAN_ID } from '../../data/seed'
 import { tally } from '../../domain/poll'
 import type { DrinksAnswer, MemberId, Plan } from '../../domain/types'
 import { useApp } from '../../store/app'
@@ -30,8 +30,6 @@ export type Entrance = 'poll' | 'other' | null
 /** 02 · The 20:30 slot Maya added when planning: the time is set, the place is open. */
 export function OpenSlot({ plan }: { plan: Plan }) {
   const openSheet = useApp((s) => s.openSheet)
-  // Ren joins for this dinner: until he's added, adding him is the next step (violet = waiting on you).
-  const renPending = useApp((s) => !s.guestAdded)
   return (
     <div className={styles.open}>
       <div className={styles.openHead}>
@@ -44,18 +42,9 @@ export function OpenSlot({ plan }: { plan: Plan }) {
         </p>
       </div>
       {plan.note && <p className={styles.note}>{plan.note}</p>}
-      {renPending && <p className={styles.nudge}>Ren joins you for this dinner: add him first, so he can vote too.</p>}
+      <GuestInvited />
       <div className={styles.buttons}>
-        {renPending && (
-          <button type="button" className={`${styles.small} ${styles.smallAct}`} onClick={() => openSheet('add-people')}>
-            + Add Ren
-          </button>
-        )}
-        <button
-          type="button"
-          className={`${styles.small} ${renPending ? styles.smallChip : styles.smallAct}`}
-          onClick={() => openSheet('decide')}
-        >
+        <button type="button" className={`${styles.small} ${styles.smallAct}`} onClick={() => openSheet('decide')}>
           Decide
         </button>
         <button type="button" className={`${styles.small} ${styles.smallChip}`} onClick={() => {
@@ -66,6 +55,20 @@ export function OpenSlot({ plan }: { plan: Plan }) {
         </button>
       </div>
     </div>
+  )
+}
+
+/** Ren is invited for this dinner but hasn't opened the link yet (03 → G0): a quiet line, nothing to do here. */
+export function GuestInvited() {
+  const invited = useApp((s) => s.guestInvited && !s.guestAdded && s.guestPlanIds.includes(DINNER_PLAN_ID))
+  if (!invited) return null
+  return (
+    <p className={styles.invited}>
+      <Avatar member="ren" size={20} labelled={false} className={styles.invitedAvatar} />
+      <span>
+        <span className={styles.invitedName}>Ren</span> · Invited · waiting to join
+      </span>
+    </p>
   )
 }
 
@@ -145,7 +148,7 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
     return `Picked by ${votes} of ${t.eligible}`
   })()
 
-  // "Who's having wine?" Anyone who hasn't answered is counted in until they opt out, as on the bill.
+  // "Who's having drinks?" Anyone who hasn't answered is counted in until they opt out, as on the bill.
   const who = (answer: DrinksAnswer): MemberId[] => attendees.filter((m) => (drinks[m] ?? null) === answer)
   const wineIn = who('in')
   const skipping = who('skip')
@@ -153,7 +156,7 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
   const mine = drinks[me] ?? null
   // Answers land ~1s apart: screen readers hear the tally once they pause, not each name.
   const counted = noAnswer.length > 0 ? ` (${noAnswer.map(memberName).join(', ')}: no answer, counted in)` : ''
-  const drinksSaid = `Wine · In: ${wineIn.length + noAnswer.length}${counted}${skipping.length > 0 ? `, Skip: ${skipping.length}` : ''}`
+  const drinksSaid = `Drinks · In: ${wineIn.length + noAnswer.length}${counted}${skipping.length > 0 ? `, Skip: ${skipping.length}` : ''}`
   // Answers stay editable until the bill is opened (its wine chips take over from there).
   const editable = !bill
 
@@ -164,7 +167,7 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
   const drinksCard = (
     <motion.div className={styles.drinks} role="group" aria-labelledby="drinks-title" {...rise(play, reduce, 0.17)}>
       <p id="drinks-title" className={styles.drinksTitle}>
-        Who's having wine?
+        Who's having drinks?
       </p>
       <p className={styles.drinksNote}>It's split among the people who are in. No answer counts as in.</p>
       {editable && (
@@ -271,7 +274,7 @@ export function DinnerStop({ plan, entrance = null }: { plan: Plan; entrance?: E
         )}
       </AnimatePresence>
 
-      {/* 06B keeps the wine answers (the bill pre-fills from them) above Log the bill. */}
+      {/* 06B keeps the drinks answers (the bill pre-fills from them) above Log the bill. */}
       {editable && drinksCard}
 
       <AnimatePresence initial={play}>
@@ -342,8 +345,8 @@ function NamePiece({ text }: { text: string }) {
       initial={reduce ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.14 } }}
-      // A beat late, so it lands after the "no answer" line it came from has started to fold.
-      transition={{ duration: 0.22, delay: 0.1 }}
+      // After the "no answer" line it came from has folded (grow's exit, 0.24s), so a name is never in both.
+      transition={{ duration: 0.22, delay: reduce ? 0 : 0.26 }}
     >
       {text}
     </motion.span>

@@ -61,7 +61,7 @@ const theoNeeded = (s: ScenarioState) => !s.done.includes('switch-theo') && s.po
 
 const drinksBy = (member: MemberId): ScriptEvent => ({
   id: `drinks-${member}`,
-  label: `${member[0].toUpperCase()}${member.slice(1)} answers “Who’s having wine?”`,
+  label: `${member[0].toUpperCase()}${member.slice(1)} answers “Who’s having drinks?”`,
   ready: (s) => s.decided && !s.bill && s.drinks[member] === null,
   run: (s) => sc.answerDrinks(s, member, s.data.drinks[member]),
 })
@@ -84,6 +84,25 @@ const payBy = (from: MemberId): ScriptEvent => ({
 })
 
 export const SCRIPT: ScriptEvent[] = [
+  // 03 → G0: Ren opens the invite link on his phone, joins, and Ari's phone hears "Ren joined".
+  {
+    id: 'ren-opens-link',
+    label: 'Ren opens the invite link',
+    ready: (s) => s.guestInvited && !s.guestAdded && s.screen === 'hub' && s.sheet === null,
+    run: (s) => sc.openGuestJoin(s),
+  },
+  {
+    id: 'ren-joins',
+    label: 'Ren enters his name and joins',
+    ready: (s) => s.guestInvited && !s.guestAdded && s.screen === 'guest-join',
+    run: (s) => sc.joinGuest(s),
+  },
+  {
+    id: 'ren-back',
+    label: 'Back on Ari’s phone: Ren joined',
+    ready: (s) => s.guestAdded && s.screen === 'guest-join',
+    run: (s) => sc.backFromGuestJoin(s),
+  },
   // 05: the group votes; the rest waits for Ari so the hi-fi state (4 of 6) always shows.
   voteBy('maya', favourite),
   voteBy('theo', rival),
@@ -111,12 +130,12 @@ export const SCRIPT: ScriptEvent[] = [
     ready: (s) => sc.pollReadyToClose(s),
     run: (s) => sc.decide(s),
   },
-  // 06: wine answers ("Who's having wine?") come in.
+  // 06: drinks answers ("Who's having drinks?") come in.
   drinksBy('maya'),
   drinksBy('theo'),
   drinksBy('sam'),
   drinksBy('nic'),
-  // 06B: when the wine answers are in, the evening moves on to 22:30.
+  // 06B: when the drinks answers are in, the evening moves on to 22:30.
   {
     id: 'end-dinner',
     label: 'It’s 22:30 · dinner ends',

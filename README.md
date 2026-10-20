@@ -23,11 +23,11 @@ You are **Ari**. The rest of the group (Maya, Theo, Sam, Nic, and Ren, who joins
 | # | You tap | What happens |
 |---|---|---|
 | 01 | **Lisbon with the crew** on My trips | The trip opens on today's plan. Dinner at 20:30 is still open ("Next · Dinner 20:30 · not decided"). |
-| 03 | **+ Add** → **Add Ren & share link** | Ren joins as a guest for the dinner only (link or QR, no app needed). |
+| 03 | **+ Add** → **Add Ren & share link** | Ren is invited as a guest for the dinner only: "Invited · waiting to join". A moment later his phone shows the link (no app or account); he types his name and taps Join, and Ari's phone says "Ren joined". |
 | 04 | **Decide** on the 20:30 slot → **Send to group (6)** | The poll goes out with three places that have different vibes. You see the notification the group got. |
 | 05 | Wait a moment, then tap **A Cevicheria** | Votes land live and the leader updates in real time: Taberna leads 2–1–1 with 4 of 6 voted (Hi-fi 1). |
 | 05B | (the group) | Nic changes his mind ("Nic switched to Ramiro"), then Sam and Ren vote for Ramiro; "6 of 6 voted · closing…". |
-| 06 | (the group) | The winner moves into the 20:30 slot: "Dinner at Cervejaria Ramiro · Picked by 4 of 6", and the map gets its pin 3. "Who's having wine?" answers come in: Nic skips, and Ren never answers, so he's "no answer, counted in". |
+| 06 | (the group) | The winner moves into the 20:30 slot: "Dinner at Cervejaria Ramiro · Picked by 4 of 6", and the map gets its pin 3. "Who's having drinks?" answers come in: Nic skips, and Ren never answers, so he's "no answer, counted in". |
 | 06B | (time passes) | "Later that evening · 22:30", then **Who paid at Cervejaria Ramiro?** |
 | 07 | **Log the bill** → tap **✕** under Ren | €198 total, wine €48 split out (Nic is already off from his wine answer), the rest split equally. Hi-fi 2 shows Your share €34.60; with Ren off the wine it becomes €37.00. |
 | 08 | **Save** | Everyone's trip balance updates. You owe **€20.00, was €156.00**. Debts are reduced to **3 payments instead of 10**, and Ren pays his €25 to you directly. |
@@ -65,7 +65,7 @@ Nothing is hard-coded: every number on screen is computed from data.
 
 - **The trip as data** (`src/data/seed.ts`):
   - members, and a guest whose access is scoped to the plans he was added to
-  - the day's plans, the poll and its votes, and the "Who's having wine?" answers
+  - the day's plans, the poll and its votes, and the "Who's having drinks?" answers
   - 22 earlier expenses with per-item participants, plus tonight's €198 bill, which becomes the 23rd when you save it
 - **Earlier expenses:** the 22 expenses before dinner are mock, but they reproduce the balances in the Figma data sheet to the cent: Ari −€156, Maya +€137, Theo +€7, Sam −€13, Nic +€25.
 - **The money engine** (`src/domain/money.ts`) works in **integer cents**:
