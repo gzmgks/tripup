@@ -183,4 +183,23 @@ describe('the full scenario', () => {
     expect(s.screen).toBe('hub')
     expect(s.done).toEqual(expect.arrayContaining(['ren-opens-link', 'ren-joins', 'ren-back']))
   })
+
+  it('settles whoever paid the bill, with or without a tip', () => {
+    for (const payer of ['ari', 'maya', 'theo', 'sam', 'nic'] as const) {
+      for (const tip of [0, 1980]) {
+        let s = sc.startPoll(sc.addGuest(sc.openTrip(sc.freshScenario())))
+        s = sc.vote(runReady(s), me, 'cevicheria')
+        s = runReady(s, (x) => x.dinnerEnded)
+        s = sc.saveBill(sc.setWine(sc.setTip(sc.setPaidBy(sc.openBill(s), payer), tip), 'ren', 'out'))
+        // Ari pays every row of hers; the friends and Ren follow by script.
+        for (const r of moneyView(s).rows.filter((r) => !r.guest && r.transfer.from === me)) s = sc.recordPayment(s, { ...r.transfer, method: 'bank' })
+        s = runReady(s)
+        const v = moneyView(s)
+        expect(v.allSettled, `${payer} paid, tip ${tip}`).toBe(true)
+        expect(s.screen).toBe('squared')
+        // The group's balances are all at zero and Ren's share went to whoever paid.
+        expect(v.rows.some((r) => r.guest && r.transfer.to === payer)).toBe(true)
+      }
+    }
+  })
 })

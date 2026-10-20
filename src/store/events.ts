@@ -66,20 +66,27 @@ const drinksBy = (member: MemberId): ScriptEvent => ({
   run: (s) => sc.answerDrinks(s, member, s.data.drinks[member]),
 })
 
+/**
+ * A friend pays from their own phone, once Ari has paid everything she owes. Who owes whom
+ * depends on the bill (who paid, the tip), so every member has an event; one that never owes
+ * anything just never becomes ready.
+ */
 const payBy = (from: MemberId): ScriptEvent => ({
   id: `pay-${from}`,
   label: `${from[0].toUpperCase()}${from.slice(1)} pays`,
   ready: (s) => {
     if (!s.dinnerExpense) return false
     const me = s.data.trip.me
-    const myRow = moneyView(s).rows.find((r) => !r.guest && r.transfer.from === me)
-    const ariPaid = !myRow || myRow.status === 'paid'
-    const row = moneyView(s).rows.find((r) => r.transfer.from === from)
-    return ariPaid && !!row && row.status === 'open'
+    const rows = moneyView(s).rows
+    const ariPaid = rows.filter((r) => !r.guest && r.transfer.from === me).every((r) => r.status === 'paid')
+    return ariPaid && rows.some((r) => r.transfer.from === from && r.status === 'open')
   },
   run: (s) => {
-    const row = moneyView(s).rows.find((r) => r.transfer.from === from)!
-    return sc.recordPayment(s, { ...row.transfer, method: 'bank', guest: row.guest })
+    let next = s
+    for (const row of moneyView(s).rows.filter((r) => r.transfer.from === from && r.status === 'open')) {
+      next = sc.recordPayment(next, { ...row.transfer, method: 'bank', guest: row.guest })
+    }
+    return next
   },
 })
 
@@ -145,6 +152,8 @@ export const SCRIPT: ScriptEvent[] = [
   // 09B: once Ari has paid, the others pay from their own phones.
   payBy('theo'),
   payBy('sam'),
+  payBy('nic'),
+  payBy('maya'),
   payBy('ren'),
   {
     id: 'confirm-cash',

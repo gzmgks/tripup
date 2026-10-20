@@ -32,6 +32,8 @@ export const EVENT_DELAY: Record<string, number> = {
   // 09B: friends pay from their own phones once Ari has paid.
   'pay-theo': 2000, // after Ari's balance has finished counting to €0
   'pay-sam': 1100,
+  'pay-nic': 1100,
+  'pay-maya': 1100,
   'pay-ren': 1100,
   'confirm-cash': 2600,
   'squared-up': 2400,
