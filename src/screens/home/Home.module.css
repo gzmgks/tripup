@@ -49,7 +49,8 @@
  * on a 60px line, 24px apart, centred. Everything scales from the mark's height.
  */
 .logo {
-  --logo-h: 54px;
+  /* 40px: level with the 36px avatar beside it, the wordmark at caption size */
+  --logo-h: 40px;
   display: flex;
   align-items: center;
   gap: calc(var(--logo-h) * 24 / 179.447);
